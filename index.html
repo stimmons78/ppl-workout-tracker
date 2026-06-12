@@ -617,6 +617,7 @@ function renderExCard(ex,sets,key,idx){
         <div class="exm">${sets.length} sets · ${ex.reps} · <span style="color:${col}">${ex.cat}</span></div>
       </div>
       <div class="excv" id="chv-${ex.id}">▼</div>
+      <button onclick="event.stopPropagation();removeEx('${key}','${ex.id}')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 2px 4px 8px;line-height:1;flex:0 0 auto" title="Remove">✕</button>
     </div>
     <div class="sp" id="sp-${ex.id}">
       <div class="sth"><span></span><span>Weight (lbs)</span><span>Reps</span><span>✓</span></div>
@@ -663,6 +664,13 @@ function togDone(key,id,si){
   const btn=document.querySelector(`#sr-${id}-${si} .ck`);
   if(btn){const d=logs[key][id][si].done;btn.className='ck'+(d?' on':'');btn.textContent=d?'✓':'○';if(d)toast('Set done! 💪')}
   setTimeout(renderW,250);qsync(key);
+}
+
+function removeEx(key,id){
+  if(!logs[key])return;
+  logs[key]._exercises=(logs[key]._exercises||[]).filter(e=>e!==id);
+  delete logs[key][id];
+  sv2('lift_logs',logs);qsync(key);renderW();
 }
 
 function addSet(key,id){
