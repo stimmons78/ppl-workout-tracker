@@ -428,7 +428,7 @@ const REPO='stimmons78/ppl-workout-tracker';
 let syncTmr;
 function gtoken(){return localStorage.getItem('lift_token')||''}
 function qsync(k){clearTimeout(syncTmr);syncTmr=setTimeout(()=>dsync(k),2000)}
-async function dsync(k){
+async function dsync(k, silent=false){
   if(!gtoken())return;
   setSUI('busy');
   try{
@@ -592,6 +592,7 @@ function addEx(id,key,type){
   logs[key][id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
   sv2('lift_logs',logs);
   toast('Added: '+ex.name);
+  qsync(key);
   renderW();
   setTimeout(()=>openEx(id),60);
 }
@@ -667,15 +668,18 @@ function togDone(key,id,si){
 function addSet(key,id){
   if(!logs[key])logs[key]={};if(!logs[key][id])logs[key][id]=[];
   logs[key][id].push({w:'',r:'',done:false});sv2('lift_logs',logs);
+  qsync(key);
   renderW();setTimeout(()=>openEx(id),40);
 }
 
-function saveNote(val,key){if(!logs[key])logs[key]={};logs[key]._notes=val;sv2('lift_logs',logs)}
+function saveNote(val,key){if(!logs[key])logs[key]={};logs[key]._notes=val;sv2('lift_logs',logs);qsync(key)}
 
 function finWO(key){
   if(!logs[key]||(logs[key]._exercises||[]).length===0){toast('Add exercises first!');return}
   logs[key]._done=true;logs[key]._at=new Date().toISOString();
-  sv2('lift_logs',logs);dsync(key);toast('🎉 Workout saved & synced!');setTimeout(renderW,300);
+  sv2('lift_logs',logs);
+  dsync(key).then(()=>toast('🎉 Saved & backed up to GitHub!'));
+  setTimeout(renderW,300);
 }
 
 // ── HISTORY ───────────────────────────────────────────────
