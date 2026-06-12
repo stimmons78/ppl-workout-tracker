@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIFT">
+<title>LIFT — PPL Tracker</title>
+<style>
+  :root {
+    --bg: #08090d;
+    --surface: #0f1018;
+    --card: #151621;
+    --border: #1e2030;
+    --muted: #3a3d55;
+    --text: #e2e4f0;
+    --dim: #7478a0;
+    --accent: #6c63ff;
+    --accent-glow: rgba(108,99,255,0.18);
+    --green: #39d98a;
+    --green-dim: rgba(57,217,138,0.12);
+    --red: #ff5c6c;
+    --orange: #ff9f43;
+    --yellow: #ffe066;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    height: 100%; min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: calc(var(--safe-top) + 18px) 20px 16px;
+    background: linear-gradient(180deg, rgba(8,9,13,0.98) 0%, rgba(8,9,13,0.0) 100%);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .today-badge {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--dim); text-transform: uppercase;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 20px;
+  }
+
+  /* ── SCROLL AREA ── */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px calc(var(--safe-bottom) + 90px);
+    -webkit-overflow-scrolling: touch;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* ── DAY SELECTOR ── */
+  .day-scroll {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 4px 0 12px; scrollbar-width: none; scroll-snap-type: x mandatory;
+  }
+  .day-scroll::-webkit-scrollbar { display: none; }
+  .day-pill {
+    flex: 0 0 auto; scroll-snap-align: center;
+    padding: 8px 18px; border-radius: 24px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 13px; font-weight: 600;
+    color: var(--dim); cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+  }
+  .day-pill.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(108,99,255,0.4);
+  }
+  .day-pill.rest {
+    border-style: dashed;
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--dim);
+    margin: 20px 0 10px;
+  }
+
+  /* ── WORKOUT CARD ── */
+  .workout-header {
+    background: linear-gradient(135deg, var(--card) 0%, #1a1b2e 100%);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .workout-header::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 18px 18px 0 0;
+  }
+  .workout-type {
+    font-size: 24px; font-weight: 800; letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .workout-subtitle { font-size: 13px; color: var(--dim); margin-top: 4px; }
+  .workout-stats {
+    display: flex; gap: 16px; margin-top: 14px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── EXERCISE CARD ── */
+  .exercise-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .exercise-card.active { border-color: var(--accent); }
+  .exercise-card.complete { border-color: var(--green); }
+
+  .exercise-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .exercise-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex: 0 0 40px;
+    background: var(--accent-glow);
+  }
+  .exercise-icon.complete { background: var(--green-dim); }
+  .exercise-name { font-size: 15px; font-weight: 600; flex: 1; }
+  .exercise-meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .exercise-chevron {
+    color: var(--dim); transition: transform 0.2s;
+    font-size: 12px;
+  }
+  .exercise-chevron.open { transform: rotate(180deg); }
+
+  .exercise-sets {
+    padding: 0 16px 14px;
+    display: none;
+  }
+  .exercise-sets.open { display: block; }
+
+  /* ── SET ROW ── */
+  .set-row {
+    display: grid; grid-template-columns: 28px 1fr 1fr 44px;
+    gap: 8px; align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+  }
+  .set-num {
+    font-size: 12px; font-weight: 700; color: var(--dim);
+    text-align: center;
+  }
+  .set-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 15px; font-weight: 600;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .set-input:focus { border-color: var(--accent); }
+  .set-input::placeholder { color: var(--muted); font-weight: 400; }
+  .set-label {
+    font-size: 10px; color: var(--dim); text-align: center;
+    margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .complete-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--dim);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin: auto;
+  }
+  .complete-btn.done {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+
+  .set-headers {
+    display: grid; grid-template-columns: 28px 1fr 1fr 44px;
+    gap: 8px; padding-bottom: 4px;
+  }
+
+  /* ── ADD SET ── */
+  .add-set-btn {
+    width: 100%; padding: 10px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    color: var(--dim);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; margin-top: 6px;
+    transition: all 0.15s;
+  }
+  .add-set-btn:active { background: var(--accent-glow); border-color: var(--accent); color: var(--text); }
+
+  /* ── PR BADGE ── */
+  .pr-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,224,102,0.12);
+    border: 1px solid rgba(255,224,102,0.3);
+    color: var(--yellow);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 3px 8px; border-radius: 6px;
+    text-transform: uppercase; margin-left: 8px;
+  }
+
+  /* ── PROGRESS RING ── */
+  .progress-ring-wrap {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px;
+    margin-bottom: 12px;
+  }
+  .progress-ring { position: relative; width: 64px; height: 64px; flex: 0 0 64px; }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .progress-ring-sub { font-size: 9px; color: var(--dim); }
+  .progress-info { flex: 1; }
+  .progress-info-title { font-size: 15px; font-weight: 700; }
+  .progress-info-sub { font-size: 12px; color: var(--dim); margin-top: 3px; }
+
+  /* ── NOTES ── */
+  .notes-input {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; color: var(--text);
+    font-size: 14px; resize: none; outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .notes-input:focus { border-color: var(--accent); }
+  .notes-input::placeholder { color: var(--muted); }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: rgba(15,16,24,0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around;
+    padding: 10px 0 calc(var(--safe-bottom) + 8px);
+    z-index: 200;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 4px 16px;
+    color: var(--dim); transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── FINISH BUTTON ── */
+  .finish-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent) 0%, #9d6fff 100%);
+    border: none; border-radius: 16px;
+    padding: 16px; color: #fff;
+    font-size: 16px; font-weight: 700; letter-spacing: 0.02em;
+    cursor: pointer; margin-top: 16px;
+    box-shadow: 0 8px 32px rgba(108,99,255,0.4);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .finish-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+  /* ── HISTORY / STATS VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-bottom: 10px;
+  }
+  .stat-card-title {
+    font-size: 12px; color: var(--dim); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 12px;
+  }
+
+  .history-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); flex: 0 0 10px;
+  }
+  .history-dot.push { background: var(--red); }
+  .history-dot.pull { background: var(--green); }
+  .history-dot.legs { background: var(--orange); }
+  .history-dot.rest { background: var(--muted); }
+  .history-info { flex: 1; }
+  .history-name { font-size: 14px; font-weight: 600; }
+  .history-sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .history-vol { font-size: 14px; font-weight: 700; color: var(--dim); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--green); color: #000;
+    padding: 12px 24px; border-radius: 14px;
+    font-size: 14px; font-weight: 700;
+    opacity: 0; transition: all 0.3s;
+    pointer-events: none; z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── REST DAY VIEW ── */
+  .rest-view {
+    text-align: center; padding: 60px 20px;
+  }
+  .rest-emoji { font-size: 64px; margin-bottom: 20px; }
+  .rest-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .rest-sub { font-size: 15px; color: var(--dim); line-height: 1.5; }
+
+  /* ── SYNCING ── */
+  .sync-indicator {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--dim);
+    padding: 4px 0;
+  }
+  .sync-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .sync-dot.syncing {
+    background: var(--orange);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-history {
+    text-align: center; padding: 40px 20px;
+    color: var(--dim); font-size: 14px;
+  }
+
+  /* ── MINI CHART ── */
+  .mini-chart {
+    display: flex; align-items: flex-end; gap: 4px;
+    height: 40px; margin-top: 12px;
+  }
+  .mini-bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    background: var(--accent-glow);
+    border-top: 2px solid var(--accent);
+    min-height: 4px;
+    transition: height 0.3s ease;
+  }
+
+  /* animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .exercise-card { animation: fadeUp 0.3s ease both; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">LIFT</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="sync-indicator">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncText">Synced</span>
+        </div>
+        <div class="today-badge" id="todayBadge">Loading...</div>
+        <div onclick="openSettings()" style="cursor:pointer;font-size:20px;padding:4px">⚙️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL AREA -->
+  <div class="scroll-area">
+
+    <!-- WORKOUT VIEW -->
+    <div id="view-workout" class="view active">
+
+      <!-- Day Selector -->
+      <div class="day-scroll" id="dayScroll"></div>
+
+      <!-- Workout Content -->
+      <div id="workoutContent"></div>
+
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div id="view-history" class="view">
+      <p class="section-label">Recent Workouts</p>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- STATS VIEW -->
+    <div id="view-stats" class="view">
+      <p class="section-label">Volume by Week</p>
+      <div class="stat-card">
+        <div class="stat-card-title">Total Volume (lbs lifted)</div>
+        <div class="mini-chart" id="volumeChart"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span id="volumeLabels" style="display:contents;font-size:10px;color:var(--dim)"></span>
+        </div>
+      </div>
+      <p class="section-label">Personal Records</p>
+      <div id="prList"></div>
+      <p class="section-label">Streak</p>
+      <div class="stat-card" style="text-align:center;padding:24px">
+        <div style="font-size:48px;font-weight:800;color:var(--accent)" id="streakNum">0</div>
+        <div style="font-size:13px;color:var(--dim);margin-top:4px">Day Streak 🔥</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-workout" onclick="switchView('workout')">
+      <div class="nav-icon">💪</div>
+      <div class="nav-label">Workout</div>
+    </div>
+    <div class="nav-item" id="nav-history" onclick="switchView('history')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">History</div>
+    </div>
+    <div class="nav-item" id="nav-stats" onclick="switchView('stats')">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Stats</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;padding:20px;align-items:flex-end">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;width:100%;max-width:398px;margin:0 auto">
+    <div style="font-size:18px;font-weight:800;margin-bottom:16px">⚙️ Settings</div>
+    <div style="font-size:12px;color:var(--dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">GitHub Token (for cloud sync)</div>
+    <input id="tokenInput" type="password" placeholder="ghp_..." 
+      style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px"
+      oninput="document.getElementById('tokenInput').style.borderColor='var(--border)'">
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px;line-height:1.5">Paste your GitHub Personal Access Token to enable cloud sync. Stored locally on device only.</div>
+    <button onclick="saveToken()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">Save Token</button>
+    <button onclick="closeSettings()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--dim);font-size:15px;font-weight:600;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════
+
+const PPL_SCHEDULE = ['push', 'pull', 'legs', 'rest', 'push', 'pull', 'legs'];
+
+const WORKOUTS = {
+  push: {
+    name: 'Push',
+    color: '#ff5c6c',
+    emoji: '🔴',
+    subtitle: 'Chest · Shoulders · Triceps',
+    exercises: [
+      { id: 'bp', name: 'Bench Press', icon: '🏋️', defaultSets: 4, repRange: '6–8', notes: 'Compound — track e1RM' },
+      { id: 'ohp', name: 'Overhead Press', icon: '⬆️', defaultSets: 3, repRange: '6–8', notes: 'Seated or standing' },
+      { id: 'incline', name: 'Incline Dumbbell Press', icon: '📐', defaultSets: 3, repRange: '8–12', notes: '30–45° incline' },
+      { id: 'lateral', name: 'Lateral Raises', icon: '↔️', defaultSets: 4, repRange: '12–15', notes: 'Cable or dumbbell' },
+      { id: 'tricep_push', name: 'Tricep Pushdowns', icon: '⬇️', defaultSets: 3, repRange: '10–15', notes: 'Rope or bar' },
+      { id: 'overhead_ext', name: 'Overhead Tricep Ext.', icon: '🔼', defaultSets: 3, repRange: '10–15', notes: 'Dumbbell or EZ bar' },
+    ]
+  },
+  pull: {
+    name: 'Pull',
+    color: '#39d98a',
+    emoji: '🟢',
+    subtitle: 'Back · Biceps · Rear Delts',
+    exercises: [
+      { id: 'deadlift', name: 'Deadlift', icon: '⚡', defaultSets: 3, repRange: '4–6', notes: 'Compound — track e1RM' },
+      { id: 'pullups', name: 'Pull-ups / Lat Pulldown', icon: '🎯', defaultSets: 4, repRange: '6–10', notes: 'BW+weight or machine' },
+      { id: 'row', name: 'Barbell Row', icon: '🚣', defaultSets: 3, repRange: '8–10', notes: 'Overhand, elbows in' },
+      { id: 'face_pull', name: 'Face Pulls', icon: '🎯', defaultSets: 3, repRange: '12–15', notes: 'Rope at eye level' },
+      { id: 'curl', name: 'Barbell Curl', icon: '💪', defaultSets: 3, repRange: '8–12', notes: 'Full ROM' },
+      { id: 'hammer', name: 'Hammer Curls', icon: '🔨', defaultSets: 3, repRange: '10–15', notes: 'Neutral grip' },
+    ]
+  },
+  legs: {
+    name: 'Legs',
+    color: '#ff9f43',
+    emoji: '🟠',
+    subtitle: 'Quads · Hamstrings · Glutes · Calves',
+    exercises: [
+      { id: 'squat', name: 'Back Squat', icon: '🦵', defaultSets: 4, repRange: '5–8', notes: 'Compound — track e1RM' },
+      { id: 'rdl', name: 'Romanian Deadlift', icon: '🔩', defaultSets: 3, repRange: '8–12', notes: 'Controlled eccentric' },
+      { id: 'leg_press', name: 'Leg Press', icon: '🦶', defaultSets: 3, repRange: '10–15', notes: 'Full depth' },
+      { id: 'leg_curl', name: 'Leg Curl', icon: '🌀', defaultSets: 3, repRange: '12–15', notes: 'Seated or lying' },
+      { id: 'calf', name: 'Calf Raises', icon: '🦿', defaultSets: 4, repRange: '15–20', notes: 'Standing or seated' },
+      { id: 'lunges', name: 'Walking Lunges', icon: '🚶', defaultSets: 3, repRange: '10–12/leg', notes: 'Dumbbell, per leg' },
+    ]
+  },
+  rest: {
+    name: 'Rest',
+    color: '#3a3d55',
+    emoji: '😴',
+    subtitle: 'Recovery Day'
+  }
+};
+
+// Storage helpers
+function getStore(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? def; }
+  catch { return def; }
+}
+function setStore(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// Get today's day index in PPL cycle
+function getDayOffset() {
+  return getStore('dayOffset', 0);
+}
+function getCurrentDayIndex() {
+  const start = new Date('2026-05-04');
+  const today = new Date();
+  const diff = Math.floor((today - start) / 86400000);
+  return (diff + getDayOffset()) % 7;
+}
+
+function getDayType(offset = 0) {
+  const idx = (getCurrentDayIndex() + offset) % 7;
+  return PPL_SCHEDULE[(idx + 7) % 7];
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+
+let currentDayOffset = 0; // relative to today
+let workoutLogs = getStore('workoutLogs', {}); // { "2026-06-12": { type, exercises: { id: [{weight,reps,done}] } } }
+let currentLog = {};
+
+function getTodayKey(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+
+function loadLogForDay(offset) {
+  const key = getTodayKey(offset);
+  return workoutLogs[key] || null;
+}
+
+// ═══════════════════════════════════════
+// GITHUB SYNC
+// ═══════════════════════════════════════
+
+const GITHUB_TOKEN = window.LIFT_TOKEN || '';
+const REPO = 'stimmons78/ppl-workout-tracker';
+let syncQueue = [];
+let isSyncing = false;
+
+async function syncToGitHub(logKey, logData) {
+  setSyncState('syncing');
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(logData, null, 2))));
+    const path = `logs/${logKey}.json`;
+
+    // Check if file exists for SHA
+    let sha = null;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+        headers: { Authorization: `token ${GITHUB_TOKEN}` }
+      });
+      if (r.ok) { const d = await r.json(); sha = d.sha; }
+    } catch {}
+
+    const body = { message: `Log ${logKey}`, content };
+    if (sha) body.sha = sha;
+
+    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (resp.ok) {
+      setSyncState('synced');
+      showToast('✅ Synced to cloud');
+    } else {
+      setSyncState('error');
+    }
+  } catch (e) {
+    setSyncState('error');
+    console.warn('Sync failed:', e);
+  }
+}
+
+function setSyncState(state) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  if (state === 'syncing') {
+    dot.className = 'sync-dot syncing';
+    txt.textContent = 'Syncing...';
+  } else if (state === 'synced') {
+    dot.className = 'sync-dot';
+    txt.textContent = 'Synced';
+  } else {
+    dot.className = 'sync-dot';
+    dot.style.background = 'var(--red)';
+    txt.textContent = 'Offline';
+  }
+}
+
+function debouncedSync(key, data) {
+  clearTimeout(window._syncTimer);
+  window._syncTimer = setTimeout(() => syncToGitHub(key, data), 2000);
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+
+function formatDate(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  if (offset === 0) return 'Today';
+  if (offset === -1) return 'Yesterday';
+  if (offset === 1) return 'Tomorrow';
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function renderDayScroll() {
+  const container = document.getElementById('dayScroll');
+  container.innerHTML = '';
+  for (let i = -3; i <= 3; i++) {
+    const type = getDayType(i);
+    const w = WORKOUTS[type];
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (i === currentDayOffset ? ' active' : '') + (type === 'rest' ? ' rest' : '');
+    pill.innerHTML = `<span>${w.emoji}</span> ${i === 0 ? 'Today' : formatDate(i)}`;
+    pill.onclick = () => { currentDayOffset = i; renderWorkoutView(); };
+    container.appendChild(pill);
+  }
+  // scroll active into view
+  const active = container.querySelector('.active');
+  if (active) active.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+}
+
+function renderWorkoutView() {
+  renderDayScroll();
+  const type = getDayType(currentDayOffset);
+  const workout = WORKOUTS[type];
+  const content = document.getElementById('workoutContent');
+  const key = getTodayKey(currentDayOffset);
+  const log = workoutLogs[key] || {};
+
+  // Update badge
+  document.getElementById('todayBadge').textContent = formatDate(currentDayOffset);
+
+  if (type === 'rest') {
+    content.innerHTML = `
+      <div class="rest-view">
+        <div class="rest-emoji">😴</div>
+        <div class="rest-title">Rest Day</div>
+        <div class="rest-sub">Recovery is where the gains happen.<br>Sleep, eat, hydrate.</div>
+      </div>`;
+    return;
+  }
+
+  // Progress ring
+  const totalSets = workout.exercises.reduce((a, e) => a + e.defaultSets, 0);
+  const completedSets = workout.exercises.reduce((a, e) => {
+    const sets = (log[e.id] || []);
+    return a + sets.filter(s => s.done).length;
+  }, 0);
+  const pct = totalSets ? Math.round(completedSets / totalSets * 100) : 0;
+  const r = 26, circ = 2 * Math.PI * r;
+  const dash = circ - (pct / 100) * circ;
+
+  const totalVol = workout.exercises.reduce((a, e) => {
+    return a + (log[e.id] || []).filter(s => s.done).reduce((b, s) => b + (s.weight || 0) * (s.reps || 0), 0);
+  }, 0);
+
+  content.innerHTML = `
+    <div class="progress-ring-wrap">
+      <div class="progress-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--accent)" stroke-width="5"
+            stroke-dasharray="${circ}" stroke-dashoffset="${dash}"
+            stroke-linecap="round" style="transition:stroke-dashoffset 0.4s ease"/>
+        </svg>
+        <div class="progress-ring-text">
+          <span>${pct}%</span>
+          <span class="progress-ring-sub">done</span>
+        </div>
+      </div>
+      <div class="progress-info">
+        <div class="progress-info-title" style="color:${workout.color}">${workout.name} Day</div>
+        <div class="progress-info-sub">${workout.subtitle}</div>
+        <div style="font-size:12px;margin-top:6px;color:var(--dim)">
+          ${completedSets}/${totalSets} sets · ${totalVol > 0 ? Math.round(totalVol).toLocaleString() + ' lbs total' : 'No sets logged yet'}
+        </div>
+      </div>
+    </div>
+    ${workout.exercises.map((ex, i) => renderExerciseCard(ex, log[ex.id] || [], i, key, type)).join('')}
+    <textarea class="notes-input" rows="3" placeholder="Workout notes... how did it feel?" 
+      onchange="saveNotes(this.value, '${key}')">${log._notes || ''}</textarea>
+    <button class="finish-btn" onclick="finishWorkout('${key}', '${type}')">
+      ${pct === 100 ? '✅ Workout Complete!' : '🏁 Finish Workout'}
+    </button>
+  `;
+}
+
+function renderExerciseCard(ex, sets, idx, key, type) {
+  const allDone = sets.length >= ex.defaultSets && sets.every(s => s.done);
+  const pr = getPR(ex.id);
+
+  const setsHTML = sets.map((s, si) => `
+    <div class="set-row" id="setrow-${ex.id}-${si}">
+      <div class="set-num">${si + 1}</div>
+      <div>
+        <div class="set-label">Weight (lbs)</div>
+        <input type="number" inputmode="decimal" class="set-input" 
+          value="${s.weight || ''}" placeholder="${pr ? pr.weight : '0'}"
+          onchange="updateSet('${key}','${ex.id}',${si},'weight',this.value,'${type}')">
+      </div>
+      <div>
+        <div class="set-label">Reps</div>
+        <input type="number" inputmode="numeric" class="set-input"
+          value="${s.reps || ''}" placeholder="${ex.repRange}"
+          onchange="updateSet('${key}','${ex.id}',${si},'reps',this.value,'${type}')">
+      </div>
+      <button class="complete-btn ${s.done ? 'done' : ''}" 
+        onclick="toggleSetDone('${key}','${ex.id}',${si},'${type}')">
+        ${s.done ? '✓' : '○'}
+      </button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="exercise-card ${allDone ? 'complete' : ''}" id="excard-${ex.id}" style="animation-delay:${idx * 0.05}s">
+      <div class="exercise-header" onclick="toggleExercise('${ex.id}')">
+        <div class="exercise-icon ${allDone ? 'complete' : ''}">${ex.icon}</div>
+        <div style="flex:1">
+          <div class="exercise-name">
+            ${ex.name}
+            ${pr ? `<span class="pr-badge">🏆 PR: ${pr.weight}×${pr.reps}</span>` : ''}
+          </div>
+          <div class="exercise-meta">${ex.defaultSets} sets · ${ex.repRange} reps · ${ex.notes}</div>
+        </div>
+        <div class="exercise-chevron" id="chevron-${ex.id}">▼</div>
+      </div>
+      <div class="exercise-sets" id="sets-${ex.id}">
+        <div class="set-headers">
+          <div></div>
+          <div class="set-label">Weight</div>
+          <div class="set-label">Reps</div>
+          <div class="set-label">✓</div>
+        </div>
+        ${setsHTML}
+        <button class="add-set-btn" onclick="addSet('${key}','${ex.id}','${type}')">+ Add Set</button>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════
+
+function toggleExercise(id) {
+  const sets = document.getElementById(`sets-${id}`);
+  const chev = document.getElementById(`chevron-${id}`);
+  const isOpen = sets.classList.contains('open');
+
+  // Close all first
+  document.querySelectorAll('.exercise-sets').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.exercise-chevron').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.exercise-card').forEach(el => el.classList.remove('active'));
+
+  if (!isOpen) {
+    sets.classList.add('open');
+    chev.classList.add('open');
+    document.getElementById(`excard-${id}`).classList.add('active');
+    // Auto-add default sets if none
+    const key = getTodayKey(currentDayOffset);
+    const type = getDayType(currentDayOffset);
+    const w = WORKOUTS[type];
+    const ex = w?.exercises?.find(e => e.id === id);
+    if (ex) {
+      const log = workoutLogs[key] || {};
+      if (!log[id] || log[id].length === 0) {
+        initSets(key, id, ex.defaultSets, type);
+      }
+    }
+  }
+}
+
+function initSets(key, exId, count, type) {
+  if (!workoutLogs[key]) workoutLogs[key] = {};
+  if (!workoutLogs[key][exId]) {
+    workoutLogs[key][exId] = Array(count).fill(null).map(() => ({ weight: '', reps: '', done: false }));
+    setStore('workoutLogs', workoutLogs);
+    renderWorkoutView();
+    // re-open
+    setTimeout(() => {
+      const sets = document.getElementById(`sets-${exId}`);
+      const chev = document.getElementById(`chevron-${exId}`);
+      if (sets && chev) {
+        sets.classList.add('open');
+        chev.classList.add('open');
+        document.getElementById(`excard-${exId}`)?.classList.add('active');
+      }
+    }, 50);
+  }
+}
+
+function updateSet(key, exId, setIdx, field, value, type) {
+  if (!workoutLogs[key]) workoutLogs[key] = {};
+  if (!workoutLogs[key][exId]) workoutLogs[key][exId] = [];
+  while (workoutLogs[key][exId].length <= setIdx) {
+    workoutLogs[key][exId].push({ weight: '', reps: '', done: false });
+  }
+  workoutLogs[key][exId][setIdx][field] = field === 'reps' ? parseInt(value) || 0 : parseFloat(value) || 0;
+  setStore('workoutLogs', workoutLogs);
+
+  // Check PR
+  const s = workoutLogs[key][exId][setIdx];
+  if (s.weight && s.reps) checkAndUpdatePR(exId, s.weight, s.reps);
+
+  debouncedSync(key, buildDayPayload(key, type));
+}
+
+function toggleSetDone(key, exId, setIdx, type) {
+  if (!workoutLogs[key]?.[exId]?.[setIdx]) return;
+  workoutLogs[key][exId][setIdx].done = !workoutLogs[key][exId][setIdx].done;
+  setStore('workoutLogs', workoutLogs);
+
+  // Update just the button
+  const btn = document.querySelector(`#setrow-${exId}-${setIdx} .complete-btn`);
+  if (btn) {
+    const done = workoutLogs[key][exId][setIdx].done;
+    btn.className = 'complete-btn' + (done ? ' done' : '');
+    btn.textContent = done ? '✓' : '○';
+    if (done) showToast('Set logged! 💪');
+  }
+
+  // Re-render to update progress ring + card status
+  setTimeout(() => renderWorkoutView(), 300);
+  debouncedSync(key, buildDayPayload(key, type));
+}
+
+function addSet(key, exId, type) {
+  if (!workoutLogs[key]) workoutLogs[key] = {};
+  if (!workoutLogs[key][exId]) workoutLogs[key][exId] = [];
+  workoutLogs[key][exId].push({ weight: '', reps: '', done: false });
+  setStore('workoutLogs', workoutLogs);
+  renderWorkoutView();
+  setTimeout(() => {
+    const sets = document.getElementById(`sets-${exId}`);
+    const chev = document.getElementById(`chevron-${exId}`);
+    if (sets) { sets.classList.add('open'); chev?.classList.add('open'); }
+  }, 50);
+}
+
+function saveNotes(val, key) {
+  if (!workoutLogs[key]) workoutLogs[key] = {};
+  workoutLogs[key]._notes = val;
+  setStore('workoutLogs', workoutLogs);
+}
+
+function finishWorkout(key, type) {
+  if (!workoutLogs[key]) { showToast('Log some sets first!'); return; }
+  workoutLogs[key]._finished = true;
+  workoutLogs[key]._type = type;
+  workoutLogs[key]._finishedAt = new Date().toISOString();
+  setStore('workoutLogs', workoutLogs);
+  syncToGitHub(key, buildDayPayload(key, type));
+  showToast('🎉 Workout saved & synced!');
+  renderWorkoutView();
+}
+
+function buildDayPayload(key, type) {
+  return {
+    date: key,
+    type,
+    exercises: workoutLogs[key],
+    synced: new Date().toISOString()
+  };
+}
+
+// ═══════════════════════════════════════
+// PR TRACKING
+// ═══════════════════════════════════════
+
+function getPRs() { return getStore('prs', {}); }
+function getPR(exId) { return getPRs()[exId] || null; }
+
+function checkAndUpdatePR(exId, weight, reps) {
+  const prs = getPRs();
+  const e1rm = weight * (1 + reps / 30);
+  const existing = prs[exId];
+  if (!existing || e1rm > existing.e1rm) {
+    prs[exId] = { weight: parseFloat(weight), reps: parseInt(reps), e1rm, date: new Date().toISOString() };
+    setStore('prs', prs);
+    showToast(`🏆 New PR: ${weight}lbs × ${reps}!`);
+  }
+}
+
+// ═══════════════════════════════════════
+// HISTORY VIEW
+// ═══════════════════════════════════════
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  const entries = Object.entries(workoutLogs)
+    .filter(([, v]) => v._finished)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 20);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-history">No completed workouts yet.<br>Finish your first session to see history.</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(([key, log]) => {
+    const type = log._type || 'push';
+    const w = WORKOUTS[type];
+    const vol = Object.entries(log)
+      .filter(([k]) => !k.startsWith('_'))
+      .reduce((a, [, sets]) => a + (Array.isArray(sets) ? sets.filter(s => s.done).reduce((b, s) => b + (s.weight || 0) * (s.reps || 0), 0) : 0), 0);
+    const d = new Date(key);
+    const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return `
+      <div class="history-row">
+        <div class="history-dot ${type}"></div>
+        <div class="history-info">
+          <div class="history-name">${w.emoji} ${w.name} Day</div>
+          <div class="history-sub">${dateStr}</div>
+        </div>
+        <div class="history-vol">${vol > 0 ? Math.round(vol).toLocaleString() + ' lbs' : '–'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// STATS VIEW
+// ═══════════════════════════════════════
+
+function renderStats() {
+  // Volume chart (last 8 workouts)
+  const entries = Object.entries(workoutLogs)
+    .filter(([, v]) => v._finished)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-8);
+
+  const vols = entries.map(([, log]) =>
+    Object.entries(log).filter(([k]) => !k.startsWith('_'))
+      .reduce((a, [, sets]) => a + (Array.isArray(sets) ? sets.filter(s => s.done).reduce((b, s) => b + (s.weight || 0) * (s.reps || 0), 0) : 0), 0)
+  );
+
+  const maxVol = Math.max(...vols, 1);
+  document.getElementById('volumeChart').innerHTML = vols.map((v, i) => {
+    const h = Math.max(4, (v / maxVol) * 40);
+    const type = workoutLogs[entries[i][0]]._type || 'push';
+    const colors = { push: 'var(--red)', pull: 'var(--green)', legs: 'var(--orange)' };
+    return `<div class="mini-bar" style="height:${h}px;background:${colors[type]}22;border-color:${colors[type]}"></div>`;
+  }).join('');
+
+  // PRs
+  const prs = getPRs();
+  const prEl = document.getElementById('prList');
+  const prEntries = Object.entries(prs);
+  if (!prEntries.length) {
+    prEl.innerHTML = '<div class="empty-history">Log workouts to track your PRs.</div>';
+  } else {
+    prEl.innerHTML = prEntries.map(([id, pr]) => {
+      // find exercise name
+      let exName = id;
+      for (const w of Object.values(WORKOUTS)) {
+        const ex = w.exercises?.find(e => e.id === id);
+        if (ex) { exName = ex.name; break; }
+      }
+      return `
+        <div class="stat-card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:14px;font-weight:600">${exName}</div>
+              <div style="font-size:12px;color:var(--dim);margin-top:2px">${new Date(pr.date).toLocaleDateString()}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:18px;font-weight:800;color:var(--yellow)">${pr.weight} lbs</div>
+              <div style="font-size:12px;color:var(--dim)">${pr.reps} reps · ${Math.round(pr.e1rm)} e1RM</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Streak
+  const finished = Object.keys(workoutLogs).filter(k => workoutLogs[k]._finished).sort();
+  let streak = 0;
+  const today = new Date().toISOString().slice(0, 10);
+  let check = new Date();
+  while (true) {
+    const k = check.toISOString().slice(0, 10);
+    const type = PPL_SCHEDULE[(Math.floor((new Date(k) - new Date('2026-05-04')) / 86400000)) % 7];
+    if (type === 'rest' || workoutLogs[k]?._finished) {
+      streak++;
+      check.setDate(check.getDate() - 1);
+    } else { break; }
+    if (streak > 365) break;
+  }
+  document.getElementById('streakNum').textContent = streak;
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.getElementById(`nav-${view}`).classList.add('active');
+
+  if (view === 'history') renderHistory();
+  if (view === 'stats') renderStats();
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+
+function openSettings() {
+  const m = document.getElementById('settingsModal');
+  m.style.display = 'flex';
+  const stored = localStorage.getItem('lift_token') || '';
+  document.getElementById('tokenInput').value = stored ? '••••••••' + stored.slice(-4) : '';
+}
+function closeSettings() {
+  document.getElementById('settingsModal').style.display = 'none';
+}
+function saveToken() {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (val && !val.startsWith('•')) {
+    localStorage.setItem('lift_token', val);
+    window.LIFT_TOKEN = val;
+    showToast('✅ Token saved!');
+  }
+  closeSettings();
+}
+// Load token from localStorage on boot
+window.LIFT_TOKEN = localStorage.getItem('lift_token') || '';
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
+renderWorkoutView();
+</script>
+</body>
+</html>
