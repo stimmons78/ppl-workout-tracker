@@ -146,8 +146,8 @@ body.light .exi{box-shadow:inset 0 1px 1px rgba(255,255,255,.5)}
 .swipe-delete svg{width:18px;height:18px}
 
 /* TEMPLATE BUTTON */
-.tmplbtn{width:100%;background:var(--gold-bg);border:none;border-radius:14px;padding:12px;color:var(--gold);font-size:12.5px;font-weight:700;cursor:pointer;margin-bottom:14px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
-.tmplbtn svg{width:13px;height:13px;fill:var(--gold);stroke:none}
+.autosave-note{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--dim);margin-bottom:14px;font-weight:600}
+.autosave-note svg{width:12px;height:12px;color:var(--green)}
 
 /* SEARCH */
 .swrap{position:relative;margin-bottom:10px}
@@ -829,12 +829,12 @@ function selWT(key,type){
   searchCat='__init__';
   // load saved custom template for this type, or fall back to built-in default
   const myTemplates=ld('lift_templates',{});
-  const tmpl = myTemplates[type] || WORKOUT_META[type].defaultEx || [];
-  logs[key]._exercises = [...tmpl];
-  // init sets for each templated exercise
-  tmpl.forEach(id=>{
-    const ex=getEx(id);
-    logs[key][id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
+  const saved = myTemplates[type]; // array of {id, sets} or undefined
+  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+  logs[key]._exercises = tmpl.map(t=>t.id);
+  // init sets for each templated exercise using saved set count
+  tmpl.forEach(t=>{
+    logs[key][t.id]=Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false}));
   });
   sv2('lift_logs',logs);renderW();
 }
@@ -865,7 +865,7 @@ function renderActive(el,key,type,log){
       </div>
       <button class="chbtn" onclick="chWT('${key}')">${svgIcon('back_arrow')}Back</button>
     </div>
-    ${exIds.length?`<button class="tmplbtn" onclick="saveTemplate('${key}','${type}')">${svgIcon('star')}Save as my ${m.name} template</button>`:''}
+    ${exIds.length?`<div class="autosave-note">${svgIcon('check')}Template saves automatically as you edit</div>`:''}
     ${exIds.map((id,i)=>renderExCard(getEx(id),log[id]||[],key,i)).join('')}
     <div style="margin-top:10px">${renderSearch(key,type,exIds)}</div>
     <textarea class="ni" rows="3" placeholder="Notes, how it felt, PRs…" oninput="saveNote(this.value,'${key}')">${log._notes||''}</textarea>
@@ -884,9 +884,20 @@ function saveTemplate(key,type){
   const exIds=(logs[key]?._exercises)||[];
   if(!exIds.length){toast('Add exercises first!');return}
   const templates=ld('lift_templates',{});
-  templates[type]=[...exIds];
+  templates[type]=exIds.map(id=>({id, sets:(logs[key][id]||[]).length||getEx(id).sets}));
   sv2('lift_templates',templates);
-  toast('⭐ Saved! This loads automatically next time.');
+  toast('Saved! This loads automatically next time.');
+}
+
+// Silently keep the template in sync whenever sets/exercises change for this workout type
+function autoSaveTemplate(key,type){
+  if(!type) type = logs[key]?._type;
+  if(!type) return;
+  const exIds=(logs[key]?._exercises)||[];
+  if(!exIds.length) return;
+  const templates=ld('lift_templates',{});
+  templates[type]=exIds.map(id=>({id, sets:(logs[key][id]||[]).length||getEx(id).sets}));
+  sv2('lift_templates',templates);
 }
 
 // ── SEARCH ────────────────────────────────────────────────
@@ -979,6 +990,7 @@ function addEx(id,key,type){
   logs[key][id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
   sv2('lift_logs',logs);
   toast('Added: '+ex.name);
+  autoSaveTemplate(key,type);
   qsync(key);
   renderW();
   setTimeout(()=>openEx(id),60);
@@ -1152,12 +1164,13 @@ function removeEx(key,id){
   if(!logs[key])return;
   logs[key]._exercises=(logs[key]._exercises||[]).filter(e=>e!==id);
   delete logs[key][id];
-  sv2('lift_logs',logs);qsync(key);renderW();
+  sv2('lift_logs',logs);autoSaveTemplate(key);qsync(key);renderW();
 }
 
 function addSet(key,id){
   if(!logs[key])logs[key]={};if(!logs[key][id])logs[key][id]=[];
   logs[key][id].push({w:'',r:'',done:false});sv2('lift_logs',logs);
+  autoSaveTemplate(key);
   qsync(key);
   renderW();setTimeout(()=>openEx(id),40);
 }
@@ -1166,6 +1179,7 @@ function removeSet(key,id){
   if(!logs[key]?.[id]||logs[key][id].length<=1)return;
   logs[key][id].pop();
   sv2('lift_logs',logs);
+  autoSaveTemplate(key);
   qsync(key);
   renderW();setTimeout(()=>openEx(id),40);
 }
