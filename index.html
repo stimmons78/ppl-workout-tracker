@@ -550,7 +550,13 @@ function renderActive(el,key,type,log){
     <button class="finbtn" onclick="finWO('${key}')">${log._done?'✅ Workout Complete!':'🏁 Finish Workout'}</button>`;
 }
 
-function chWT(key){if(logs[key])delete logs[key]._type;sv2('lift_logs',logs);renderW()}
+function chWT(key){
+  if(logs[key]){
+    delete logs[key]._type;
+    delete logs[key]._exercises;
+  }
+  sv2('lift_logs',logs);renderW();
+}
 
 function saveTemplate(key,type){
   const exIds=(logs[key]?._exercises)||[];
