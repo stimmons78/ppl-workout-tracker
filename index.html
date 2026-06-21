@@ -126,6 +126,8 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
 .sri-sub{font-size:11px;color:var(--dim);margin-top:1px}
 .sri-tag{font-size:10px;background:var(--border);color:var(--dim);padding:2px 6px;border-radius:6px;margin-left:auto;white-space:nowrap;flex:0 0 auto}
 .add-custom{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;color:var(--accent);font-size:14px;font-weight:600}
+.ppl-section-label{font-size:13px;font-weight:800;letter-spacing:.04em;margin:16px 0 6px;text-transform:uppercase}
+.bodypart-label{font-size:11px;font-weight:600;color:var(--dim);margin:8px 2px 4px;text-transform:uppercase;letter-spacing:.04em}
 
 /* FILTER CHIPS */
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
@@ -390,6 +392,15 @@ const DB = [
   {id:'fbf9', name:'Sandbag Carry',       icon:'🎒', cat:'Full Body', sets:3, reps:'30–40m', note:'Awkward loading. Functional strength.'},
 ];
 
+// Map each body-part category to its PPL split (for grouping/labeling)
+const CAT_TO_PPL = {
+  Chest:'Push', Shoulders:'Push', Triceps:'Push',
+  Back:'Pull', Biceps:'Pull',
+  Quads:'Legs', Hamstrings:'Legs', Glutes:'Legs', Calves:'Legs',
+  Core:'Core', 'Full Body':'Full Body', Cardio:'Cardio', Olympic:'Full Body'
+};
+DB.forEach(e=>{ e.ppl = CAT_TO_PPL[e.cat] || 'Other'; });
+
 // Category colors
 const CAT_COLORS = {
   Chest:'#ff5c6c',Shoulders:'#ff9f43',Triceps:'#ff6baf',
@@ -397,7 +408,9 @@ const CAT_COLORS = {
   Quads:'#6c63ff',Hamstrings:'#9d6fff',Glutes:'#c084fc',Calves:'#818cf8',
   Core:'#fbbf24','Full Body':'#ffe066',Cardio:'#f472b6',Olympic:'#67e8f9'
 };
+const PPL_COLORS = { Push:'#ff5c6c', Pull:'#39d98a', Legs:'#ff9f43', Core:'#47ffe8', 'Full Body':'#ffe066', Cardio:'#ff6baf' };
 const ALL_CATS = [...new Set(DB.map(e=>e.cat))];
+const ALL_PPL  = ['Push','Pull','Legs','Core','Full Body','Cardio'];
 
 const WORKOUT_META = {
   push:   {name:'Push',   emoji:'🔴',color:'#ff5c6c',subtitle:'Chest · Shoulders · Triceps',suggestCats:['Chest','Shoulders','Triceps'],
@@ -428,7 +441,7 @@ let logs   = ld('lift_logs',{});
 let prs    = ld('lift_prs',{});
 let cexs   = ld('lift_cx',[]);
 let curOff = 0;
-let searchCat = 'All';
+let searchCat = '__init__';
 
 // ── UTILS ─────────────────────────────────────────────────
 function dkey(off){const d=new Date();d.setDate(d.getDate()+(off||0));return d.toISOString().slice(0,10)}
@@ -506,6 +519,7 @@ function renderPicker(el,key){
 function selWT(key,type){
   if(!logs[key])logs[key]={};
   logs[key]._type=type;
+  searchCat='__init__';
   // load saved custom template for this type, or fall back to built-in default
   const myTemplates=ld('lift_templates',{});
   const tmpl = myTemplates[type] || WORKOUT_META[type].defaultEx || [];
@@ -541,7 +555,7 @@ function renderActive(el,key,type,log){
         <div class="psub2">${m.subtitle}</div>
         <div class="pstats">${ds2}/${ts} sets · ${vol>0?Math.round(vol).toLocaleString()+' lbs':'Start logging'}</div>
       </div>
-      <button class="chbtn" onclick="chWT('${key}')">Change</button>
+      <button class="chbtn" onclick="chWT('${key}')">← Back</button>
     </div>
     ${exIds.length?`<button class="tmplbtn" onclick="saveTemplate('${key}','${type}')">⭐ Save as my ${m.name} template</button>`:''}
     ${exIds.map((id,i)=>renderExCard(getEx(id),log[id]||[],key,i)).join('')}
@@ -570,9 +584,12 @@ function saveTemplate(key,type){
 // ── SEARCH ────────────────────────────────────────────────
 function renderSearch(key,type,exIds){
   const m=WORKOUT_META[type];
-  const suggestCats=m.suggestCats||ALL_CATS;
-  const chips=['All',...suggestCats,...ALL_CATS.filter(c=>!suggestCats.includes(c))].filter((v,i,a)=>a.indexOf(v)===i);
+  // default chip = this workout's own PPL group if it has one, else 'All'
+  const defaultPPL = ALL_PPL.find(p=>m.suggestCats?.some(c=>CAT_TO_PPL[c]===p)) || 'All';
+  if(searchCat==='__init__') searchCat = defaultPPL;
+  const chips=['All',...ALL_PPL];
   return `
+    <div class="plabel" style="margin-top:4px">Add an exercise</div>
     <div class="swrap">
       <span class="sicon">🔍</span>
       <input class="search" id="exSearch" placeholder="Search ${DB.length}+ exercises…"
@@ -581,15 +598,41 @@ function renderSearch(key,type,exIds){
     <div class="chips" id="chips">
       ${chips.map(c=>`<div class="chip${c===searchCat?' on':''}" onclick="setCat('${c}','${key}','${type}')">${c}</div>`).join('')}
     </div>
-    <div id="exResults">${renderSuggestions(key,type,exIds)}</div>`;
+    <div id="exResults">${renderGrouped(key,type,exIds,'')}</div>`;
 }
 
-function renderSuggestions(key,type,exIds){
-  const m=WORKOUT_META[type];
-  const cats=searchCat==='All'?(m.suggestCats||ALL_CATS):[searchCat];
-  const suggestions=DB.filter(e=>cats.includes(e.cat)&&!exIds.includes(e.id)).slice(0,8);
-  if(!suggestions.length)return'';
-  return`<div class="sresults">${suggestions.map(e=>exRow(e,key,type)).join('')}</div>`;
+// Group exercises: PPL section -> body part subsection, filtered by chip + optional query
+function renderGrouped(key,type,exIds,query){
+  const q=(query||'').toLowerCase().trim();
+  let pool = DB.filter(e=>!exIds.includes(e.id));
+  if(searchCat && searchCat!=='All') pool = pool.filter(e=>e.ppl===searchCat);
+  if(q) pool = pool.filter(e=>e.name.toLowerCase().includes(q));
+
+  if(!pool.length){
+    if(q.length>2){
+      return `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}')">＋ Add "${query}" as custom exercise</div></div>`;
+    }
+    return '<div class="empty" style="padding:20px">No exercises found.</div>';
+  }
+
+  // group by ppl, then by cat (body part), preserving ALL_PPL order
+  const pplGroups = ALL_PPL.filter(p=>pool.some(e=>e.ppl===p));
+  let html='';
+  pplGroups.forEach(ppl=>{
+    const pplItems = pool.filter(e=>e.ppl===ppl);
+    const cats = [...new Set(pplItems.map(e=>e.cat))];
+    const pplCol = PPL_COLORS[ppl]||'var(--accent)';
+    html += `<div class="ppl-section-label" style="color:${pplCol}">${ppl}</div>`;
+    cats.forEach(cat=>{
+      const items = pplItems.filter(e=>e.cat===cat).slice(0, q ? 20 : 5);
+      html += `<div class="bodypart-label">${cat}</div>`;
+      html += `<div class="sresults">${items.map(e=>exRow(e,key,type)).join('')}</div>`;
+    });
+  });
+  if(q.length>2){
+    html += `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}')">＋ Add "${query}" as custom exercise</div></div>`;
+  }
+  return html;
 }
 
 function exRow(e,key,type){
@@ -606,15 +649,8 @@ function exRow(e,key,type){
 
 function filterEx(q,key,type){
   const el=document.getElementById('exResults');
-  if(!q.trim()){el.innerHTML=renderSuggestions(key,type,(logs[key]||{})._exercises||[]);return}
-  const cur=(logs[key]||{})._exercises||[];
-  const cat=searchCat==='All'?null:searchCat;
-  const matches=DB.filter(e=>e.name.toLowerCase().includes(q.toLowerCase())&&(!cat||e.cat===cat)&&!cur.includes(e.id)).slice(0,10);
-  if(!matches.length){
-    el.innerHTML=`<div class="sresults"><div class="add-custom" onclick="addCex('${q}','${key}','${type}')">＋ Add "${q}" as custom exercise</div></div>`;
-    return;
-  }
-  el.innerHTML=`<div class="sresults">${matches.map(e=>exRow(e,key,type)).join('')}${q.length>2?`<div class="add-custom" onclick="addCex('${q}','${key}','${type}')">＋ Add "${q}" as custom</div>`:''}</div>`;
+  const exIds=(logs[key]||{})._exercises||[];
+  el.innerHTML=renderGrouped(key,type,exIds,q);
 }
 
 function setCat(cat,key,type){
