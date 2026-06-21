@@ -76,6 +76,8 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
 .psub2{font-size:12px;color:var(--dim);margin-top:3px}
 .pstats{font-size:12px;color:var(--dim);margin-top:6px}
 .chbtn{margin-left:auto;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer;white-space:nowrap}
+.tmplbtn{width:100%;background:rgba(255,224,102,.08);border:1px dashed rgba(255,224,102,.35);border-radius:12px;padding:10px;color:var(--yellow);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:12px;font-family:inherit}
+.tmplbtn:active{background:rgba(255,224,102,.16)}
 
 /* SWIPE TO DELETE */
 .swipe-wrap{position:relative;margin-bottom:10px;overflow:hidden;border-radius:16px}
@@ -398,15 +400,24 @@ const CAT_COLORS = {
 const ALL_CATS = [...new Set(DB.map(e=>e.cat))];
 
 const WORKOUT_META = {
-  push:   {name:'Push',   emoji:'🔴',color:'#ff5c6c',subtitle:'Chest · Shoulders · Triceps',suggestCats:['Chest','Shoulders','Triceps']},
-  pull:   {name:'Pull',   emoji:'🟢',color:'#39d98a',subtitle:'Back · Biceps · Rear Delts',suggestCats:['Back','Biceps','Shoulders']},
-  legs:   {name:'Legs',   emoji:'🟠',color:'#ff9f43',subtitle:'Quads · Hamstrings · Glutes · Calves',suggestCats:['Quads','Hamstrings','Glutes','Calves']},
-  upper:  {name:'Upper',  emoji:'🔵',color:'#9d6fff',subtitle:'Chest · Back · Shoulders · Arms',suggestCats:['Chest','Back','Shoulders','Biceps','Triceps']},
-  lower:  {name:'Lower',  emoji:'🟡',color:'#ff9f43',subtitle:'Quads · Hamstrings · Glutes · Calves',suggestCats:['Quads','Hamstrings','Glutes','Calves']},
-  full:   {name:'Full Body',emoji:'⚡',color:'#ffe066',subtitle:'Everything — heavy compounds',suggestCats:['Full Body','Chest','Back','Quads','Olympic']},
-  core:   {name:'Core',   emoji:'🎯',color:'#47ffe8',subtitle:'Abs · Obliques · Stability',suggestCats:['Core']},
-  cardio: {name:'Cardio', emoji:'🏃',color:'#ff6baf',subtitle:'Conditioning & Cardio',suggestCats:['Cardio']},
-  custom: {name:'Custom', emoji:'⚡',color:'#6c63ff',subtitle:'Build your own workout',suggestCats:ALL_CATS},
+  push:   {name:'Push',   emoji:'🔴',color:'#ff5c6c',subtitle:'Chest · Shoulders · Triceps',suggestCats:['Chest','Shoulders','Triceps'],
+    defaultEx:['bp','ohp','idbp','lats','tpd','toe']},
+  pull:   {name:'Pull',   emoji:'🟢',color:'#39d98a',subtitle:'Back · Biceps · Rear Delts',suggestCats:['Back','Biceps','Shoulders'],
+    defaultEx:['dl','pu','brow','fp','bc','hc']},
+  legs:   {name:'Legs',   emoji:'🟠',color:'#ff9f43',subtitle:'Quads · Hamstrings · Glutes · Calves',suggestCats:['Quads','Hamstrings','Glutes','Calves'],
+    defaultEx:['bsq','rdl','lp','lc','scr']},
+  upper:  {name:'Upper',  emoji:'🔵',color:'#9d6fff',subtitle:'Chest · Back · Shoulders · Arms',suggestCats:['Chest','Back','Shoulders','Biceps','Triceps'],
+    defaultEx:['bp','brow','ohp','bc','tpd']},
+  lower:  {name:'Lower',  emoji:'🟡',color:'#ff9f43',subtitle:'Quads · Hamstrings · Glutes · Calves',suggestCats:['Quads','Hamstrings','Glutes','Calves'],
+    defaultEx:['bsq','rdl','lp','scr']},
+  full:   {name:'Full Body',emoji:'⚡',color:'#ffe066',subtitle:'Everything — heavy compounds',suggestCats:['Full Body','Chest','Back','Quads','Olympic'],
+    defaultEx:['fbf1','bp','brow','bsq']},
+  core:   {name:'Core',   emoji:'🎯',color:'#47ffe8',subtitle:'Abs · Obliques · Stability',suggestCats:['Core'],
+    defaultEx:['ab1','ab2','ab8']},
+  cardio: {name:'Cardio', emoji:'🏃',color:'#ff6baf',subtitle:'Conditioning & Cardio',suggestCats:['Cardio'],
+    defaultEx:[]},
+  custom: {name:'Custom', emoji:'⚡',color:'#6c63ff',subtitle:'Build your own workout',suggestCats:ALL_CATS,
+    defaultEx:[]},
 };
 
 // ── STORAGE ───────────────────────────────────────────────
@@ -494,7 +505,16 @@ function renderPicker(el,key){
 
 function selWT(key,type){
   if(!logs[key])logs[key]={};
-  logs[key]._type=type;logs[key]._exercises=logs[key]._exercises||[];
+  logs[key]._type=type;
+  // load saved custom template for this type, or fall back to built-in default
+  const myTemplates=ld('lift_templates',{});
+  const tmpl = myTemplates[type] || WORKOUT_META[type].defaultEx || [];
+  logs[key]._exercises = [...tmpl];
+  // init sets for each templated exercise
+  tmpl.forEach(id=>{
+    const ex=getEx(id);
+    logs[key][id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
+  });
   sv2('lift_logs',logs);renderW();
 }
 
@@ -523,6 +543,7 @@ function renderActive(el,key,type,log){
       </div>
       <button class="chbtn" onclick="chWT('${key}')">Change</button>
     </div>
+    ${exIds.length?`<button class="tmplbtn" onclick="saveTemplate('${key}','${type}')">⭐ Save as my ${m.name} template</button>`:''}
     ${exIds.map((id,i)=>renderExCard(getEx(id),log[id]||[],key,i)).join('')}
     <div style="margin-top:10px">${renderSearch(key,type,exIds)}</div>
     <textarea class="ni" rows="3" placeholder="Notes, how it felt, PRs…" oninput="saveNote(this.value,'${key}')">${log._notes||''}</textarea>
@@ -530,6 +551,15 @@ function renderActive(el,key,type,log){
 }
 
 function chWT(key){if(logs[key])delete logs[key]._type;sv2('lift_logs',logs);renderW()}
+
+function saveTemplate(key,type){
+  const exIds=(logs[key]?._exercises)||[];
+  if(!exIds.length){toast('Add exercises first!');return}
+  const templates=ld('lift_templates',{});
+  templates[type]=[...exIds];
+  sv2('lift_templates',templates);
+  toast('⭐ Saved! This loads automatically next time.');
+}
 
 // ── SEARCH ────────────────────────────────────────────────
 function renderSearch(key,type,exIds){
