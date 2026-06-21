@@ -14,8 +14,16 @@
   --red:#ff5c6c;--orange:#ff9f43;--yellow:#ffe066;
   --st:env(safe-area-inset-top,44px);--sb:env(safe-area-inset-bottom,20px);
 }
+body.light {
+  --bg:#f4f5f9;--card:#ffffff;--border:#e2e4ee;--muted:#b8bcd4;--text:#1a1c2e;--dim:#6b6f8f;
+  --accent:#6c63ff;--ag:rgba(108,99,255,0.08);--green:#1fae6e;--gd:rgba(31,174,110,0.08);
+  --red:#e0455a;--orange:#e8862a;--yellow:#d4a300;
+}
+.toggle-row{display:flex;gap:8px;margin-bottom:6px}
+.toggle-opt{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit}
+.toggle-opt.active{background:var(--accent);border-color:var(--accent);color:#fff}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
 #app{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
 
 .header{padding:calc(var(--st) + 10px) 20px 14px;background:rgba(8,9,13,.95);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
@@ -83,6 +91,21 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
 .swipe-wrap{position:relative;margin-bottom:10px;overflow:hidden;border-radius:16px}
 .swipe-wrap .exc{margin-bottom:0;border-radius:16px;position:relative;z-index:1;will-change:transform}
 .swipe-delete{position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;border-radius:0 16px 16px 0;cursor:pointer;gap:4px;flex-direction:column}
+
+/* REST TIMER WIDGET */
+.rest-widget{display:none;position:fixed;bottom:96px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:var(--card);border:1px solid var(--accent);border-radius:16px;padding:10px 14px;z-index:998;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.rest-bar-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.rest-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));width:100%;transition:width 1s linear}
+.rest-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rest-center{display:flex;align-items:baseline;gap:4px;flex:1;justify-content:center}
+.rest-center span#restNum{font-size:22px;font-weight:800;color:var(--accent)}
+.rest-label{font-size:11px;color:var(--dim)}
+.rest-adj{background:var(--bg);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer}
+.rest-x{background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 4px}
+
+/* EDIT BUTTON & LAST SESSION */
+.editbtn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;flex:0 0 auto;opacity:.7}
+.exlast{font-size:11px;color:var(--accent);margin-top:3px;font-weight:600}
 
 /* EXERCISE CARDS */
 .exc{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden;transition:border-color .15s}
@@ -219,11 +242,24 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
 <div class="mbg" id="settingsModal">
   <div class="msh">
     <div class="mt">⚙️ Settings</div>
-    <div class="ml">GitHub Token (cloud sync)</div>
+
+    <div class="ml">Weight Unit</div>
+    <div class="toggle-row" id="unitToggle">
+      <button class="toggle-opt" id="unitLbs" onclick="setUnit('lbs')">lbs</button>
+      <button class="toggle-opt" id="unitKg" onclick="setUnit('kg')">kg</button>
+    </div>
+
+    <div class="ml" style="margin-top:16px">Appearance</div>
+    <div class="toggle-row" id="themeToggle">
+      <button class="toggle-opt" id="themeDark" onclick="setTheme('dark')">🌙 Dark</button>
+      <button class="toggle-opt" id="themeLight" onclick="setTheme('light')">☀️ Light</button>
+    </div>
+
+    <div class="ml" style="margin-top:16px">GitHub Token (cloud sync)</div>
     <input id="ti" type="password" class="mi" placeholder="ghp_...">
     <div class="mh">Your GitHub Personal Access Token with <strong>repo</strong> scope. Get it at github.com/settings/tokens → Generate new token (classic) → check repo.</div>
     <button class="mb2 p" onclick="saveToken()">Save Token</button>
-    <button class="mb2 s" onclick="closeSettings()">Cancel</button>
+    <button class="mb2 s" onclick="closeSettings()">Close</button>
   </div>
 </div>
 
@@ -249,6 +285,43 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- REST TIMER -->
+<div id="restTimer" class="rest-widget">
+  <div class="rest-bar-track"><div id="restBar" class="rest-bar-fill"></div></div>
+  <div class="rest-row">
+    <button class="rest-adj" onclick="adjustRestTimer(-15)">−15s</button>
+    <div class="rest-center">
+      <span id="restNum">90</span><span class="rest-label">sec rest</span>
+    </div>
+    <button class="rest-adj" onclick="adjustRestTimer(15)">+15s</button>
+    <button class="rest-x" onclick="dismissRestTimer()">✕</button>
+  </div>
+</div>
+
+<!-- EDIT CUSTOM EXERCISE -->
+<div class="mbg" id="editExModal">
+  <div class="msh">
+    <div class="mt">✏️ Edit Exercise</div>
+    <div class="ml">Name</div>
+    <input id="editExName" type="text" class="mi">
+    <div class="ml">Body Part</div>
+    <select id="editExCat" class="mi" style="-webkit-appearance:none;appearance:none"></select>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1">
+        <div class="ml">Sets</div>
+        <input id="editExSets" type="number" class="mi" inputmode="numeric">
+      </div>
+      <div style="flex:1">
+        <div class="ml">Rep Range</div>
+        <input id="editExReps" type="text" class="mi">
+      </div>
+    </div>
+    <button class="mb2 p" onclick="confirmEditCex()">Save Changes</button>
+    <button class="mb2" style="background:rgba(255,92,108,.12);color:var(--red);border:1px solid rgba(255,92,108,.3)" onclick="deleteCex()">🗑 Delete Exercise</button>
+    <button class="mb2 s" onclick="closeEditCex()">Cancel</button>
+  </div>
+</div>
 
 
 <script>
@@ -466,6 +539,7 @@ let cexs   = ld('lift_cx',[]);
 let curOff = 0;
 let searchCat = '__init__';
 let pendingCex = null;
+let pendingEditId = null;
 
 // ── UTILS ─────────────────────────────────────────────────
 function dkey(off){const d=new Date();d.setDate(d.getDate()+(off||0));return d.toISOString().slice(0,10)}
@@ -506,6 +580,126 @@ function chkPR(id,w,r){
   if(!prs[id]||e>prs[id].e1rm){prs[id]={weight:w,reps:r,e1rm:e,date:new Date().toISOString()};sv2('lift_prs',prs);toast('🏆 New PR: '+w+'lbs × '+r+'!');}
 }
 
+// ── UNITS ─────────────────────────────────────────────────
+function getUnit(){ return localStorage.getItem('lift_unit')||'lbs'; }
+function setUnit(u){
+  localStorage.setItem('lift_unit',u);
+  document.getElementById('unitLbs')?.classList.toggle('active',u==='lbs');
+  document.getElementById('unitKg')?.classList.toggle('active',u==='kg');
+  renderW();
+}
+
+// ── LAST SESSION LOOKUP ──────────────────────────────────
+function getLastSession(exId, excludeKey){
+  const dates = Object.keys(logs).filter(k=>k!==excludeKey && logs[k][exId] && logs[k]._done).sort().reverse();
+  for(const d of dates){
+    const sets=(logs[d][exId]||[]).filter(s=>s.done && s.w && s.r);
+    if(sets.length){
+      return sets.map(s=>`${s.w}×${s.r}`).join(', ');
+    }
+  }
+  return null;
+}
+
+// ── PLATE CALCULATOR ──────────────────────────────────────
+function showPlateCalc(weightStr){
+  const total = parseFloat(weightStr);
+  if(!total || total<=0){ toast('Enter a weight first'); return; }
+  const unit = getUnit();
+  const bar = unit==='kg' ? 20 : 45;
+  if(total <= bar){ toast(`🏋️ Just the bar (${bar}${unit})`); return; }
+  let remaining = (total - bar) / 2; // per side
+  const plates = unit==='kg' ? [25,20,15,10,5,2.5,1.25] : [45,35,25,10,5,2.5];
+  const used = [];
+  for(const p of plates){
+    while(remaining >= p - 0.01){ used.push(p); remaining -= p; }
+  }
+  const txt = used.length ? used.map(p=>p+unit).join(' + ') + ' per side' : 'Just the bar';
+  toast(`🏋️ ${txt} (${bar}${unit} bar)`);
+}
+
+// ── REST TIMER ────────────────────────────────────────────
+let restInterval=null;
+function startRestTimer(seconds=90){
+  clearInterval(restInterval);
+  let remaining=seconds;
+  const el=document.getElementById('restTimer');
+  const bar=document.getElementById('restBar');
+  el.style.display='flex';
+  document.getElementById('restNum').textContent=remaining;
+  bar.style.width='100%';
+  restInterval=setInterval(()=>{
+    remaining--;
+    document.getElementById('restNum').textContent=Math.max(0,remaining);
+    bar.style.width=(remaining/seconds*100)+'%';
+    if(remaining<=0){
+      clearInterval(restInterval);
+      el.style.display='none';
+      toast('⏱ Rest done — go!');
+      if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    }
+  },1000);
+}
+function dismissRestTimer(){
+  clearInterval(restInterval);
+  document.getElementById('restTimer').style.display='none';
+}
+function adjustRestTimer(delta){
+  // quick add/remove 15s
+  const numEl=document.getElementById('restNum');
+  let cur=parseInt(numEl.textContent)||0;
+  cur=Math.max(0,cur+delta);
+  numEl.textContent=cur;
+}
+
+// ── EDIT CUSTOM EXERCISE ──────────────────────────────────
+function openEditCex(id){
+  const ex=cexs.find(c=>c.id===id);
+  if(!ex)return;
+  pendingEditId=id;
+  document.getElementById('editExName').value=ex.name;
+  const catSel=document.getElementById('editExCat');
+  catSel.innerHTML=ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+  catSel.value=ex.cat;
+  document.getElementById('editExSets').value=ex.sets;
+  document.getElementById('editExReps').value=ex.reps;
+  document.getElementById('editExModal').classList.add('open');
+}
+function confirmEditCex(){
+  const ex=cexs.find(c=>c.id===pendingEditId);
+  if(!ex)return;
+  ex.name=document.getElementById('editExName').value.trim()||ex.name;
+  ex.cat=document.getElementById('editExCat').value;
+  ex.ppl=CAT_TO_PPL[ex.cat]||'Other';
+  ex.sets=parseInt(document.getElementById('editExSets').value)||3;
+  ex.reps=document.getElementById('editExReps').value.trim()||'8–12';
+  sv2('lift_cx',cexs);
+  document.getElementById('editExModal').classList.remove('open');
+  toast('✅ Updated: '+ex.name);
+  renderW();
+  pendingEditId=null;
+}
+function deleteCex(){
+  if(!pendingEditId)return;
+  cexs=cexs.filter(c=>c.id!==pendingEditId);
+  sv2('lift_cx',cexs);
+  // also remove from any current-day workout
+  const key=dkey(curOff);
+  if(logs[key]?._exercises){
+    logs[key]._exercises=logs[key]._exercises.filter(id=>id!==pendingEditId);
+    delete logs[key][pendingEditId];
+    sv2('lift_logs',logs);
+  }
+  document.getElementById('editExModal').classList.remove('open');
+  toast('🗑 Exercise deleted');
+  renderW();
+  pendingEditId=null;
+}
+function closeEditCex(){
+  document.getElementById('editExModal').classList.remove('open');
+  pendingEditId=null;
+}
+
 // ── RENDER ────────────────────────────────────────────────
 function renderW(){
   renderStrip();
@@ -543,6 +737,7 @@ function renderPicker(el,key){
 function selWT(key,type){
   if(!logs[key])logs[key]={};
   logs[key]._type=type;
+  logs[key]._startedAt = logs[key]._startedAt || new Date().toISOString();
   searchCat='__init__';
   // load saved custom template for this type, or fall back to built-in default
   const myTemplates=ld('lift_templates',{});
@@ -738,6 +933,8 @@ function renderExCard(ex,sets,key,idx){
   const allDone=sets.length>0&&sets.every(s=>s.done);
   const pr=prs[ex.id];
   const col=CAT_COLORS[ex.cat]||'var(--accent)';
+  const isCustom = cexs.some(c=>c.id===ex.id);
+  const last = getLastSession(ex.id, key);
   return`
   <div class="swipe-wrap" id="sw-${ex.id}">
     <div class="swipe-delete" onclick="removeEx('${key}','${ex.id}')">🗑 Remove</div>
@@ -747,15 +944,17 @@ function renderExCard(ex,sets,key,idx){
         <div style="flex:1;min-width:0">
           <div class="exn">${ex.name}${pr?`<span class="prb">🏆 ${pr.weight}×${pr.reps}</span>`:''}</div>
           <div class="exm">${sets.length} sets · ${ex.reps} · <span style="color:${col}">${ex.cat}</span></div>
+          ${last?`<div class="exlast">Last time: ${last}</div>`:''}
         </div>
+        ${isCustom?`<button class="editbtn" onclick="event.stopPropagation();openEditCex('${ex.id}')" title="Edit">✏️</button>`:''}
         <div class="excv" id="chv-${ex.id}">▼</div>
       </div>
       <div class="sp" id="sp-${ex.id}">
-        <div class="sth"><span></span><span>Weight (lbs)</span><span>Reps</span><span>✓</span></div>
+        <div class="sth"><span></span><span>Weight (${getUnit()}) <span style="opacity:.6">· hold for plates</span></span><span>Reps</span><span>✓</span></div>
         ${sets.map((s,si)=>`
           <div class="sr" id="sr-${ex.id}-${si}">
             <div class="sn">${si+1}</div>
-            <input type="number" inputmode="decimal" class="si" value="${s.w||''}" placeholder="${pr?pr.weight:'0'}"
+            <input type="number" inputmode="decimal" class="si plate-hold" value="${s.w||''}" placeholder="${pr?pr.weight:'0'}"
               onchange="updSet('${key}','${ex.id}',${si},'w',this.value)">
             <input type="number" inputmode="numeric" class="si" value="${s.r||''}" placeholder="${ex.reps}"
               onchange="updSet('${key}','${ex.id}',${si},'r',this.value)">
@@ -763,6 +962,7 @@ function renderExCard(ex,sets,key,idx){
           </div>`).join('')}
         <button class="asb" onclick="addSet('${key}','${ex.id}')">+ Add Set</button>
       </div>
+
     </div>
   </div>`;
 }
@@ -846,7 +1046,11 @@ function togDone(key,id,si){
   if(!logs[key]?.[id]?.[si])return;
   logs[key][id][si].done=!logs[key][id][si].done;sv2('lift_logs',logs);
   const btn=document.querySelector(`#sr-${id}-${si} .ck`);
-  if(btn){const d=logs[key][id][si].done;btn.className='ck'+(d?' on':'');btn.textContent=d?'✓':'○';if(d)toast('Set done! 💪')}
+  if(btn){
+    const d=logs[key][id][si].done;
+    btn.className='ck'+(d?' on':'');btn.textContent=d?'✓':'○';
+    if(d){ toast('Set done! 💪'); startRestTimer(90); if(navigator.vibrate) navigator.vibrate(60); }
+  }
   setTimeout(renderW,250);qsync(key);
 }
 
@@ -869,6 +1073,10 @@ function saveNote(val,key){if(!logs[key])logs[key]={};logs[key]._notes=val;sv2('
 function finWO(key){
   if(!logs[key]||(logs[key]._exercises||[]).length===0){toast('Add exercises first!');return}
   logs[key]._done=true;logs[key]._at=new Date().toISOString();
+  if(logs[key]._startedAt){
+    const mins=Math.round((new Date(logs[key]._at)-new Date(logs[key]._startedAt))/60000);
+    logs[key]._durationMin = mins;
+  }
   sv2('lift_logs',logs);
   dsync(key).then(()=>toast('🎉 Saved & backed up to GitHub!'));
   setTimeout(renderW,300);
@@ -884,8 +1092,9 @@ function renderHistory(){
     const exIds=log._exercises||[];
     const vol=exIds.reduce((a,id)=>a+(log[id]||[]).filter(s=>s.done).reduce((b,s)=>b+(s.w||0)*(s.r||0),0),0);
     const d=new Date(key),ds2=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const dur=log._durationMin?` · ${log._durationMin}m`:'';
     return`<div class="hrow2"><div class="hdot ${type}"></div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600">${m.emoji} ${m.name}</div><div style="font-size:12px;color:var(--dim);margin-top:2px">${ds2} · ${exIds.length} exercises</div></div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">${m.emoji} ${m.name}</div><div style="font-size:12px;color:var(--dim);margin-top:2px">${ds2} · ${exIds.length} exercises${dur}</div></div>
       <div style="font-size:14px;font-weight:700;color:var(--dim)">${vol>0?Math.round(vol).toLocaleString()+' lbs':'–'}</div></div>`;
   }).join('');
 }
@@ -929,11 +1138,47 @@ let ttmr;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(ttmr);ttmr=setTimeout(()=>t.classList.remove('show'),2200)}
 
 // ── SETTINGS ──────────────────────────────────────────────
-function openSettings(){document.getElementById('ti').value=localStorage.getItem('lift_token')||'';document.getElementById('settingsModal').classList.add('open')}
+function openSettings(){
+  document.getElementById('ti').value=localStorage.getItem('lift_token')||'';
+  document.getElementById('unitLbs').classList.toggle('active',getUnit()==='lbs');
+  document.getElementById('unitKg').classList.toggle('active',getUnit()==='kg');
+  document.getElementById('themeDark').classList.toggle('active',getTheme()==='dark');
+  document.getElementById('themeLight').classList.toggle('active',getTheme()==='light');
+  document.getElementById('settingsModal').classList.add('open');
+}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open')}
 function saveToken(){const v=document.getElementById('ti').value.trim();if(v){localStorage.setItem('lift_token',v);toast('✅ Sync enabled!')}closeSettings()}
+function getTheme(){ return localStorage.getItem('lift_theme')||'dark'; }
+function setTheme(t){
+  localStorage.setItem('lift_theme',t);
+  document.body.classList.toggle('light', t==='light');
+  document.getElementById('themeDark').classList.toggle('active',t==='dark');
+  document.getElementById('themeLight').classList.toggle('active',t==='light');
+}
+
+// ── LONG PRESS → PLATE CALC (delegated, works for all .plate-hold inputs) ──
+(function(){
+  let pressTimer=null, pressedEl=null;
+  function start(e){
+    const el=e.target.closest('.plate-hold');
+    if(!el)return;
+    pressedEl=el;
+    pressTimer=setTimeout(()=>{
+      showPlateCalc(el.value);
+      if(navigator.vibrate) navigator.vibrate(30);
+      pressTimer=null;
+    },550);
+  }
+  function cancel(){ if(pressTimer){clearTimeout(pressTimer);pressTimer=null;} pressedEl=null; }
+  document.addEventListener('touchstart', start, {passive:true});
+  document.addEventListener('touchend', cancel, {passive:true});
+  document.addEventListener('touchmove', cancel, {passive:true});
+  document.addEventListener('mousedown', start);
+  document.addEventListener('mouseup', cancel);
+})();
 
 // ── INIT ──────────────────────────────────────────────────
+if(getTheme()==='light') document.body.classList.add('light');
 renderW();
 </script>
 </body>
