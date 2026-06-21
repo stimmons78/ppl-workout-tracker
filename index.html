@@ -226,7 +226,30 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF P
     <button class="mb2 s" onclick="closeSettings()">Cancel</button>
   </div>
 </div>
+
+<div class="mbg" id="cexModal">
+  <div class="msh">
+    <div class="mt">＋ New Exercise: <span id="cexName" style="color:var(--accent)"></span></div>
+    <div class="ml">Body Part</div>
+    <select id="cexCat" class="mi" style="-webkit-appearance:none;appearance:none"></select>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1">
+        <div class="ml">Sets</div>
+        <input id="cexSets" type="number" class="mi" value="3" inputmode="numeric">
+      </div>
+      <div style="flex:1">
+        <div class="ml">Rep Range</div>
+        <input id="cexReps" type="text" class="mi" value="8–12">
+      </div>
+    </div>
+    <div class="mh">This saves to your library so it's grouped correctly and easy to find next time.</div>
+    <button class="mb2 p" onclick="confirmAddCex()">Add Exercise</button>
+    <button class="mb2 s" onclick="closeCexModal()">Cancel</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -442,6 +465,7 @@ let prs    = ld('lift_prs',{});
 let cexs   = ld('lift_cx',[]);
 let curOff = 0;
 let searchCat = '__init__';
+let pendingCex = null;
 
 // ── UTILS ─────────────────────────────────────────────────
 function dkey(off){const d=new Date();d.setDate(d.getDate()+(off||0));return d.toISOString().slice(0,10)}
@@ -676,10 +700,37 @@ function addEx(id,key,type){
 }
 
 function addCex(name,key,type){
-  const id='cx_'+Date.now();
-  cexs.push({id,name,icon:'⚡',cat:'Custom',sets:3,reps:'—',note:'Custom'});
-  sv2('lift_cx',cexs);
-  addEx(id,key,type);
+  // open a modal to let the user pick category + sets/reps instead of dumping into generic "Custom"
+  pendingCex = { name, key, type };
+  document.getElementById('cexName').textContent = name;
+  const catSel = document.getElementById('cexCat');
+  catSel.innerHTML = ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+  // pre-select based on current workout type's primary category if sensible
+  const m = WORKOUT_META[type];
+  if(m?.suggestCats?.length) catSel.value = m.suggestCats[0];
+  document.getElementById('cexSets').value = 3;
+  document.getElementById('cexReps').value = '8–12';
+  document.getElementById('cexModal').classList.add('open');
+}
+
+function confirmAddCex(){
+  if(!pendingCex) return;
+  const { name, key, type } = pendingCex;
+  const cat = document.getElementById('cexCat').value;
+  const sets = parseInt(document.getElementById('cexSets').value) || 3;
+  const reps = document.getElementById('cexReps').value.trim() || '8–12';
+  const id = 'cx_' + Date.now();
+  const ppl = CAT_TO_PPL[cat] || 'Other';
+  cexs.push({ id, name, icon:'⚡', cat, ppl, sets, reps, note:'Custom' });
+  sv2('lift_cx', cexs);
+  document.getElementById('cexModal').classList.remove('open');
+  addEx(id, key, type);
+  pendingCex = null;
+}
+
+function closeCexModal(){
+  document.getElementById('cexModal').classList.remove('open');
+  pendingCex = null;
 }
 
 // ── EXERCISE CARD ─────────────────────────────────────────
