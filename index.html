@@ -83,6 +83,7 @@ svg.icon{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;strok
 .picon.ic-core{background:rgba(78,205,196,.12);color:var(--core)}
 .picon.ic-cardio{background:rgba(240,107,168,.12);color:var(--cardio)}
 .picon.ic-custom{background:var(--ag);color:var(--accent)}
+.picon.ic-machine{background:rgba(110,100,240,.12);color:var(--accent)}
 .picon svg{width:18px;height:18px}
 .pname{font-size:15.5px;font-weight:700;color:var(--text);letter-spacing:-.2px}
 .psub{font-size:11.5px;color:var(--dim);margin-top:3px;line-height:1.35;font-weight:500}
@@ -256,6 +257,7 @@ body.light .toast{background:#1f2030}
 .exi.ppl-core{background:linear-gradient(155deg,rgba(78,205,196,.13),rgba(78,205,196,.03))}.exi.ppl-core svg{color:var(--core)}
 .exi.ppl-cardio{background:linear-gradient(155deg,rgba(240,107,168,.13),rgba(240,107,168,.03))}.exi.ppl-cardio svg{color:var(--cardio)}
 .exi.ppl-fullbody{background:linear-gradient(155deg,rgba(232,197,71,.13),rgba(232,197,71,.03))}.exi.ppl-fullbody svg{color:var(--yellow)}
+.exi.ppl-machines{background:linear-gradient(155deg,rgba(110,100,240,.13),rgba(110,100,240,.03))}.exi.ppl-machines svg{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -544,6 +546,60 @@ const DB = [
   {id:'fbf7', name:'Man Makers',          cat:'Full Body', sets:3, reps:'8–10',   note:'DB complex. Push-up + row + squat + press.'},
   {id:'fbf8', name:'Turkish Get-Up',      cat:'Full Body', sets:3, reps:'3–5',    note:'Per side. Shoulder stability + core.'},
   {id:'fbf9', name:'Sandbag Carry',       cat:'Full Body', sets:3, reps:'30–40m', note:'Awkward loading. Functional strength.'},
+
+  // ── MACHINES ─────────────────────────────────────────────
+  // Chest machines
+  {id:'mc1',  name:'Chest Press Machine',         cat:'Machines', sets:3, reps:'8–12',  note:'Plate-loaded or selectorized. Control the negative.'},
+  {id:'mc2',  name:'Incline Chest Press Machine', cat:'Machines', sets:3, reps:'8–12',  note:'Upper chest. Set back pad upright.'},
+  {id:'mc3',  name:'Decline Chest Press Machine', cat:'Machines', sets:3, reps:'10–12', note:'Lower chest emphasis.'},
+  {id:'mc4',  name:'Pec Deck (Butterfly)',        cat:'Machines', sets:3, reps:'12–15', note:'Full ROM. Squeeze at center.'},
+  {id:'mc5',  name:'Cable Chest Fly',             cat:'Machines', sets:3, reps:'12–15', note:'Set cables at chest height.'},
+  // Shoulder machines
+  {id:'mc6',  name:'Shoulder Press Machine',      cat:'Machines', sets:3, reps:'8–12',  note:'Seated. Full overhead extension.'},
+  {id:'mc7',  name:'Lateral Raise Machine',       cat:'Machines', sets:3, reps:'12–15', note:'Constant tension vs dumbbells.'},
+  {id:'mc8',  name:'Rear Delt Machine',           cat:'Machines', sets:3, reps:'12–15', note:'Face the pad. Elbows flared.'},
+  {id:'mc9',  name:'Cable Face Pull',             cat:'Machines', sets:3, reps:'15–20', note:'Rope attachment at eye level.'},
+  // Back machines
+  {id:'mc10', name:'Lat Pulldown Machine',        cat:'Machines', sets:3, reps:'8–12',  note:'Wide or close grip. Full stretch at top.'},
+  {id:'mc11', name:'Seated Cable Row',            cat:'Machines', sets:3, reps:'10–12', note:'V-bar or wide grip. Chest up.'},
+  {id:'mc12', name:'Chest-Supported Row Machine', cat:'Machines', sets:3, reps:'10–12', note:'No cheating. Strict form only.'},
+  {id:'mc13', name:'Low Row Machine',             cat:'Machines', sets:3, reps:'10–12', note:'Elbows in tight. Full contraction.'},
+  {id:'mc14', name:'High Row Machine',            cat:'Machines', sets:3, reps:'10–12', note:'Elbows flared. Upper back focus.'},
+  {id:'mc15', name:'Assisted Pull-up Machine',    cat:'Machines', sets:3, reps:'8–12',  note:'Counterweight. Build to bodyweight.'},
+  {id:'mc16', name:'Back Extension Machine',      cat:'Machines', sets:3, reps:'12–15', note:'Lower back. Controlled movement.'},
+  // Arm machines
+  {id:'mc17', name:'Bicep Curl Machine',          cat:'Machines', sets:3, reps:'10–12', note:'Preacher or seated. Full ROM.'},
+  {id:'mc18', name:'Tricep Extension Machine',    cat:'Machines', sets:3, reps:'10–15', note:'Overhead or pushdown style.'},
+  {id:'mc19', name:'Cable Pushdown (Rope)',       cat:'Machines', sets:3, reps:'10–15', note:'Flare rope at bottom.'},
+  {id:'mc20', name:'Cable Pushdown (Bar)',        cat:'Machines', sets:3, reps:'10–15', note:'Consistent grip, full lockout.'},
+  {id:'mc21', name:'Cable Curl',                 cat:'Machines', sets:3, reps:'12–15', note:'Constant tension. Great finisher.'},
+  // Leg machines
+  {id:'mc22', name:'Leg Press Machine',           cat:'Machines', sets:4, reps:'10–15', note:'Feet high = glutes. Feet low = quads.'},
+  {id:'mc23', name:'Leg Extension Machine',       cat:'Machines', sets:3, reps:'12–15', note:'Full extension. Squeeze at top.'},
+  {id:'mc24', name:'Seated Leg Curl Machine',     cat:'Machines', sets:3, reps:'12–15', note:'Better stretch than lying.'},
+  {id:'mc25', name:'Lying Leg Curl Machine',      cat:'Machines', sets:3, reps:'10–15', note:'Don\'t let hips rise.'},
+  {id:'mc26', name:'Hack Squat Machine',          cat:'Machines', sets:3, reps:'8–12',  note:'Feet together = more quad.'},
+  {id:'mc27', name:'Smith Machine Squat',         cat:'Machines', sets:4, reps:'8–12',  note:'Feet forward for safety.'},
+  {id:'mc28', name:'Smith Machine Lunge',         cat:'Machines', sets:3, reps:'10–12', note:'Per leg. Controlled depth.'},
+  {id:'mc29', name:'Abductor Machine',            cat:'Machines', sets:3, reps:'15–20', note:'Outer glutes/hips. Slow reps.'},
+  {id:'mc30', name:'Adductor Machine',            cat:'Machines', sets:3, reps:'15–20', note:'Inner thighs. Full range.'},
+  {id:'mc31', name:'Seated Calf Raise Machine',   cat:'Machines', sets:4, reps:'15–20', note:'Full stretch at bottom.'},
+  {id:'mc32', name:'Standing Calf Raise Machine', cat:'Machines', sets:4, reps:'12–15', note:'Pause at top and bottom.'},
+  {id:'mc33', name:'Glute Kickback Machine',      cat:'Machines', sets:3, reps:'12–15', note:'Per leg. Full hip extension.'},
+  {id:'mc34', name:'Hip Abduction Machine',       cat:'Machines', sets:3, reps:'15–20', note:'Glute medius. Controlled.'},
+  // Core machines
+  {id:'mc35', name:'Ab Crunch Machine',           cat:'Machines', sets:3, reps:'15–20', note:'Add weight. Full crunch ROM.'},
+  {id:'mc36', name:'Rotary Torso Machine',        cat:'Machines', sets:3, reps:'12–15', note:'Per side. Oblique rotation.'},
+  {id:'mc37', name:'Cable Crunch (Kneeling)',     cat:'Machines', sets:3, reps:'15–20', note:'Rope at top. Crunch down.'},
+  // Cardio machines
+  {id:'mc38', name:'Treadmill',                   cat:'Machines', sets:1, reps:'20–45m',note:'Zone 2 pace or intervals.'},
+  {id:'mc39', name:'Elliptical',                  cat:'Machines', sets:1, reps:'20–40m',note:'Low impact. Steady state.'},
+  {id:'mc40', name:'Stairmaster / StepMill',      cat:'Machines', sets:1, reps:'20–30m',note:'Level 8–12. Glute activator.'},
+  {id:'mc41', name:'Stationary Bike',             cat:'Machines', sets:1, reps:'20–45m',note:'Upright or recumbent.'},
+  {id:'mc42', name:'Rowing Machine (Erg)',        cat:'Machines', sets:1, reps:'15–30m',note:'28 strokes/min for endurance.'},
+  {id:'mc43', name:'Assault / Air Bike',          cat:'Machines', sets:4, reps:'30–60s',note:'Max effort intervals. Brutal.'},
+  {id:'mc44', name:'Ski Erg',                     cat:'Machines', sets:4, reps:'30–60s',note:'Full body pull. Upper back.'},
+  {id:'mc45', name:'Jacob\'s Ladder',             cat:'Machines', sets:3, reps:'2–3m',  note:'Self-paced. Continuous climb.'},
 ];
 
 // Map each body-part category to its PPL split (for grouping/labeling)
@@ -551,7 +607,8 @@ const CAT_TO_PPL = {
   Chest:'Push', Shoulders:'Push', Triceps:'Push',
   Back:'Pull', Biceps:'Pull',
   Quads:'Legs', Hamstrings:'Legs', Glutes:'Legs', Calves:'Legs',
-  Core:'Core', 'Full Body':'Full Body', Cardio:'Cardio', Olympic:'Full Body'
+  Core:'Core', 'Full Body':'Full Body', Cardio:'Cardio', Olympic:'Full Body',
+  Machines:'Machines'
 };
 DB.forEach(e=>{ e.ppl = CAT_TO_PPL[e.cat] || 'Other'; });
 
@@ -560,7 +617,8 @@ const CAT_TO_ICON = {
   Chest:'chest', Shoulders:'shoulders', Triceps:'triceps',
   Back:'back', Biceps:'biceps',
   Quads:'quads', Hamstrings:'hamstrings', Glutes:'glutes', Calves:'calves',
-  Core:'core', 'Full Body':'full', Cardio:'cardio', Olympic:'full', Custom:'custom'
+  Core:'core', 'Full Body':'full', Cardio:'cardio', Olympic:'full', Custom:'custom',
+  Machines:'machine'
 };
 
 // Category colors (CSS variable references so they adapt to theme)
@@ -568,11 +626,12 @@ const CAT_COLORS = {
   Chest:'var(--push)',Shoulders:'var(--push)',Triceps:'var(--push)',
   Back:'var(--pull)',Biceps:'var(--pull)',
   Quads:'var(--legs)',Hamstrings:'var(--legs)',Glutes:'var(--legs)',Calves:'var(--legs)',
-  Core:'var(--core)','Full Body':'var(--full)',Cardio:'var(--cardio)',Olympic:'var(--full)'
+  Core:'var(--core)','Full Body':'var(--full)',Cardio:'var(--cardio)',Olympic:'var(--full)',
+  Machines:'var(--accent)'
 };
-const PPL_COLORS = { Push:'var(--push)', Pull:'var(--pull)', Legs:'var(--legs)', Core:'var(--core)', 'Full Body':'var(--full)', Cardio:'var(--cardio)' };
+const PPL_COLORS = { Push:'var(--push)', Pull:'var(--pull)', Legs:'var(--legs)', Core:'var(--core)', 'Full Body':'var(--full)', Cardio:'var(--cardio)', Machines:'var(--accent)' };
 const ALL_CATS = [...new Set(DB.map(e=>e.cat))];
-const ALL_PPL  = ['Push','Pull','Legs','Core','Full Body','Cardio'];
+const ALL_PPL  = ['Push','Pull','Legs','Core','Full Body','Cardio','Machines'];
 
 const WORKOUT_META = {
   push:   {name:'Push',   iconKey:'push',color:'var(--push)',subtitle:'Chest · Shoulders · Triceps',suggestCats:['Chest','Shoulders','Triceps'],
@@ -593,6 +652,8 @@ const WORKOUT_META = {
     defaultEx:[]},
   custom: {name:'Custom', iconKey:'custom',color:'var(--accent)',subtitle:'Build your own workout',suggestCats:ALL_CATS,
     defaultEx:[]},
+  machines:{name:'Machines',iconKey:'machine',color:'var(--accent)',subtitle:'Gym machines & cables',suggestCats:['Machines'],
+    defaultEx:['mc1','mc10','mc22','mc23','mc24']},
 };
 
 // ── SVG ICON LIBRARY ──────────────────────────────────────
@@ -629,6 +690,7 @@ const ICONS = {
   sun:     '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   party:   '<path d="M5 19l14-14M9 5l1 1M15 9l1 1M5 13l1 1M13 19l1 1"/>',
   close:   '<path d="M18 6L6 18M6 6l12 12"/>',
+  machine: '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 4 0v2M16 12h-2M10 12H8M12 12v2"/>',
 };
 function svgIcon(key, cls){
   return `<svg class="icon ${cls||''}" viewBox="0 0 24 24">${ICONS[key]||ICONS.custom}</svg>`;
