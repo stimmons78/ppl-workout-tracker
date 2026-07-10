@@ -920,7 +920,9 @@ function addNewSession(key, type){
   if(!logs[key]._sessions) logs[key]._sessions = [];
   const myTemplates = ld('lift_templates',{});
   const saved = myTemplates[type];
-  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+  // No saved template yet: start with an empty exercise list so the user builds
+  // their own session via search, instead of auto-filling a default list.
+  const tmpl = saved || [];
   const s = { type, _exercises: tmpl.map(t=>t.id), _notes:'', _done:false, _startedAt: new Date().toISOString() };
   tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
   logs[key]._sessions.push(s);
@@ -941,6 +943,33 @@ function dayHasLog(key){
 
 // ── RENDER ────────────────────────────────────────────────
 function renderW(){
+  // Preserve scroll position across re-renders so checking a set, adding/removing
+  // an exercise, etc. doesn't yank the user back to the top of the page.
+  // A raw scrollY restore isn't reliable here because re-rendering can reshuffle
+  // content above the viewport (e.g. an exercise disappearing from the "add
+  // exercise" search results once it's added) — the same pixel offset can point
+  // at completely different content afterward. Instead, anchor to the nearest
+  // identifiable element (one with an id, e.g. an exercise card) near the top
+  // of the viewport, and re-align to that same element's position post-render.
+  const _scrollY = window.scrollY;
+  let _anchorEl = null, _anchorOffset = 0;
+  if(_scrollY > 0){
+    // probe below the sticky header so we anchor to scrolling content, not
+    // the pinned header/session-bar (which never moves and would give a
+    // useless zero delta)
+    const headerH = document.querySelector('.header')?.getBoundingClientRect().bottom || 90;
+    const probeY = Math.max(headerH + 20, 100);
+    let node = document.elementFromPoint(Math.round(window.innerWidth/2), probeY);
+    while(node && node !== document.body){
+      const pos = node.id ? getComputedStyle(node).position : '';
+      if(node.id && pos !== 'sticky' && pos !== 'fixed') break;
+      node = node.parentElement;
+    }
+    if(node && node.id){
+      _anchorEl = node.id;
+      _anchorOffset = node.getBoundingClientRect().top;
+    }
+  }
   renderStrip();
   const key=dkey(curOff);
   document.getElementById('db').textContent=rlabel(curOff);
@@ -948,6 +977,21 @@ function renderW(){
   const sessions = getDaySessions(key);
   renderSessionBar(key, sessions);
   renderDayView(el, key, sessions);
+  if(_scrollY > 0){
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        if(_anchorEl){
+          const again = document.getElementById(_anchorEl);
+          if(again){
+            const delta = again.getBoundingClientRect().top - _anchorOffset;
+            window.scrollTo(0, window.scrollY + delta);
+            return;
+          }
+        }
+        window.scrollTo(0, _scrollY);
+      });
+    });
+  }
 }
 
 function renderStrip(){
@@ -1092,7 +1136,7 @@ function selectSessionType(key, si, type){
     const s = logs[key]._sessions[si] || {};
     const myTemplates = ld('lift_templates',{});
     const saved = myTemplates[type];
-    const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+    const tmpl = saved || [];
     s.type = type;
     s._exercises = tmpl.map(t=>t.id);
     s._startedAt = new Date().toISOString();
@@ -1204,7 +1248,8 @@ function renderGrouped(key,type,exIds,si,query){
     html += `<div class="ppl-section-label" style="color:${pplCol}">${ppl}</div>`;
     cats.forEach(cat=>{
       const items = pplItems.filter(e=>e.cat===cat).slice(0, q ? 20 : 5);
-      html += `<div class="bodypart-label">${cat}</div>`;
+      const catId = 'catsec-'+si+'-'+cat.replace(/[^a-zA-Z0-9]/g,'');
+      html += `<div class="bodypart-label" id="${catId}">${cat}</div>`;
       html += `<div class="sresults">${items.map(e=>exRow(e,key,type,si)).join('')}</div>`;
     });
   });
