@@ -1108,8 +1108,15 @@ let addingSession = false;
 
 function startAddSession(){
   addingSession = true;
+  toast('Choose a workout type below');
   renderW();
-  setTimeout(()=>{ document.querySelector('.scroll').scrollTo({top:99999,behavior:'smooth'}); },100);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const picker = document.querySelector('.inline-picker-card');
+      if(picker){ picker.scrollIntoView({behavior:'smooth', block:'start'}); }
+      else { window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'}); }
+    });
+  });
 }
 
 function cancelSession(key, si){
