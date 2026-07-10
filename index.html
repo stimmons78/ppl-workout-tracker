@@ -898,6 +898,12 @@ function getDaySessions(key){
     delete log._done; delete log._startedAt; delete log._at; delete log._durationMin;
     sv2('lift_logs', logs);
   }
+  // prune stale empty slots left over from the old persisted-empty-slot flow
+  if(log._sessions && log._sessions.some(s=>!s||!s.type)){
+    const before = log._sessions.length;
+    log._sessions = log._sessions.filter(s=>s&&s.type);
+    if(log._sessions.length !== before) sv2('lift_logs', logs);
+  }
   return log._sessions || [];
 }
 
@@ -984,7 +990,8 @@ function scrollToSession(si){
 }
 
 function renderDayView(el, key, sessions){
-  if(!sessions.length && !addingSession){
+  const typedSessions = sessions.filter(s=>s&&s.type);
+  if(!typedSessions.length && !addingSession){
     renderPicker(el, key, -1);
     return;
   }
