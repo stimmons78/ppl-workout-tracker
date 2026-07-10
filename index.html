@@ -1577,9 +1577,16 @@ function sv(v){
   document.querySelectorAll('.ni2').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.getElementById('nav-'+v).classList.add('active');
-  // Hide FAB on non-workout views
   const fab=document.getElementById('fabAddSession');
-  if(fab) fab.style.display = v==='workout' ? fab.style.display : 'none';
+  if(v==='workout'){
+    // Re-render so the FAB's visibility is recalculated from actual session
+    // state (renderSessionBar), instead of just reusing whatever display
+    // value was left over from when we last navigated away.
+    renderW();
+  } else {
+    // Hide FAB on non-workout views
+    if(fab) fab.style.display = 'none';
+  }
   if(v==='history')renderHistory();if(v==='stats')renderStats();
 }
 
