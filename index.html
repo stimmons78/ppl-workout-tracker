@@ -270,7 +270,7 @@ body.light .toast{background:#1f2030}
       </div>
     </div>
     <!-- SESSION BAR: shows active sessions + add button, only when workout view is active -->
-    <div id="sessionBar" style="display:none;margin-top:10px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px"></div>
+    <div id="sessionBar" style="margin-top:10px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px"></div>
   </div>
   <div class="scroll">
     <div id="view-workout" class="view active">
@@ -888,24 +888,24 @@ function renderStrip(){
 
 function renderSessionBar(key, sessions){
   const bar = document.getElementById('sessionBar');
-  // hide if no sessions yet or on non-workout views
-  if(!sessions.length){
-    bar.style.display='none';
-    return;
-  }
+  if(!bar) return;
+  const typedSessions = sessions.filter(s=>s&&s.type);
+  
+  // Always show the bar if we're on workout view
   bar.style.display='flex';
-  const typedSessions = sessions.filter(s=>s.type);
+  
   let html = typedSessions.map((s,si)=>{
     const m = WORKOUT_META[s.type]||WORKOUT_META.custom;
     const done = s._done;
-    return `<button class="session-pill" onclick="scrollToSession(${si})"
+    // Find real index in sessions array (not just typedSessions)
+    const realSi = sessions.indexOf(s);
+    return `<button class="session-pill" onclick="scrollToSession(${realSi})"
       style="background:${done?m.color:''};border-color:${m.color};color:${done?'#fff':m.color}">
-      <span style="width:6px;height:6px;border-radius:50%;background:${done?'rgba(255,255,255,.6)':m.color};display:${done?'inline-block':'none'}"></span>
       ${m.name}${done?' ✓':''}
     </button>`;
   }).join('');
-  // Always show + Add button
-  html += `<button class="session-pill session-pill-add" onclick="startAddSession('${key}')">
+
+  html += `<button class="session-pill session-pill-add" onclick="startAddSession()">
     <svg style="width:12px;height:12px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     Add
   </button>`;
@@ -1030,13 +1030,13 @@ function selectSessionType(key, si, type){
   renderW();
 }
 
-function startAddSession(key){
+function startAddSession(){
+  const key = dkey(curOff);
   if(!logs[key]) logs[key]={};
   if(!logs[key]._sessions) logs[key]._sessions=[];
-  logs[key]._sessions.push({}); // empty slot — will show inline picker
+  logs[key]._sessions.push({});
   sv2('lift_logs',logs);
   renderW();
-  // scroll to bottom
   setTimeout(()=>{ document.querySelector('.scroll').scrollTo({top:99999,behavior:'smooth'}); },100);
 }
 
