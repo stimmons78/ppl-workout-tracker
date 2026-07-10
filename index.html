@@ -950,7 +950,7 @@ function renderStrip(){
     const k=dkey(i),has=dayHasLog(k),p=document.createElement('div');
     p.className='dpill'+(i===curOff?' active':'')+(has&&i!==curOff?' has-log':'');
     p.textContent=rlabel(i);
-    const ci=i;p.onclick=()=>{curOff=ci;searchCat='__init__';renderW();};c.appendChild(p);
+    const ci=i;p.onclick=()=>{curOff=ci;searchCat='__init__';addingSession=false;renderW();};c.appendChild(p);
   }
   setTimeout(()=>{const a=c.querySelector('.active');if(a)a.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'})},50);
 }
@@ -961,7 +961,7 @@ function renderSessionBar(key, sessions){
   const typedSessions = sessions.filter(s=>s&&s.type);
 
   // FAB: show whenever there's at least one typed session on workout view
-  if(fab) fab.style.display = typedSessions.length ? 'flex' : 'none';
+  if(fab) fab.style.display = typedSessions.length > 0 ? 'flex' : 'none';
 
   // Header pills: show session summary chips
   if(!bar) return;
@@ -984,22 +984,24 @@ function scrollToSession(si){
 }
 
 function renderDayView(el, key, sessions){
-  if(!sessions.length){
+  if(!sessions.length && !addingSession){
     renderPicker(el, key, -1);
     return;
   }
   let html = '';
   sessions.forEach((s, si) => {
-    if(!s.type){
-      html += renderInlinePicker(key, si);
-    } else {
+    if(s && s.type){
       html += renderSessionCard(key, si, s);
     }
   });
+  // Show inline picker at the bottom if adding a new session
+  if(addingSession){
+    html += renderInlinePicker(key, sessions.length);
+  }
   el.innerHTML = html;
   setTimeout(()=>{
     sessions.forEach((s,si)=>{
-      (s._exercises||[]).forEach(id=>initSwipe(id+'_'+si));
+      if(s&&s.type)(s._exercises||[]).forEach(id=>initSwipe(id+'_'+si));
     });
   }, 30);
 }
@@ -1072,42 +1074,39 @@ function renderPicker(el, key, si){
 }
 
 function selectSessionType(key, si, type){
+  addingSession = false;
   if(!logs[key]) logs[key]={};
   if(!logs[key]._sessions) logs[key]._sessions=[];
-  // If si === 0 and no sessions yet, add fresh
-  if(logs[key]._sessions.length === 0){
+  // If no sessions yet, start fresh
+  if(logs[key]._sessions.length === 0 || si >= logs[key]._sessions.length){
     addNewSession(key, type);
-    searchCat='__init__';
-    renderW();
-    return;
+  } else {
+    // Fill existing empty slot
+    const s = logs[key]._sessions[si] || {};
+    const myTemplates = ld('lift_templates',{});
+    const saved = myTemplates[type];
+    const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+    s.type = type;
+    s._exercises = tmpl.map(t=>t.id);
+    s._startedAt = new Date().toISOString();
+    tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
+    logs[key]._sessions[si] = s;
+    sv2('lift_logs',logs);
   }
-  // Fill existing empty slot
-  const s = logs[key]._sessions[si] || {};
-  const myTemplates = ld('lift_templates',{});
-  const saved = myTemplates[type];
-  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
-  s.type = type;
-  s._exercises = tmpl.map(t=>t.id);
-  s._startedAt = new Date().toISOString();
-  tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
-  logs[key]._sessions[si] = s;
-  sv2('lift_logs',logs);
   searchCat='__init__';
   renderW();
 }
 
+let addingSession = false;
+
 function startAddSession(){
-  const key = dkey(curOff);
-  if(!logs[key]) logs[key]={};
-  if(!logs[key]._sessions) logs[key]._sessions=[];
-  logs[key]._sessions.push({});
-  sv2('lift_logs',logs);
+  addingSession = true;
   renderW();
   setTimeout(()=>{ document.querySelector('.scroll').scrollTo({top:99999,behavior:'smooth'}); },100);
 }
 
 function cancelSession(key, si){
-  removeSession(key, si);
+  addingSession = false;
   renderW();
 }
 
