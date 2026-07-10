@@ -149,6 +149,18 @@ body.light .exi{box-shadow:inset 0 1px 1px rgba(255,255,255,.5)}
 .autosave-note{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--dim);margin-bottom:14px;font-weight:600}
 .autosave-note svg{width:12px;height:12px;color:var(--green)}
 
+/* MULTI-SESSION */
+.session-block{margin-bottom:4px}
+.session-divider{height:1px;background:var(--border);margin:20px 0 24px;border-radius:1px}
+.session-remove-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--dim2);flex:0 0 auto;display:flex;align-items:center;margin-left:auto;border-radius:8px}
+.session-remove-btn:active{background:rgba(240,84,74,.12);color:var(--red)}
+.session-remove-btn svg{width:15px;height:15px}
+.add-session-btn{width:100%;background:var(--ag);border:none;border-radius:18px;padding:14px;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;margin-top:8px;box-shadow:var(--shadow-sm)}
+.add-session-btn:active{opacity:.8}
+.add-session-btn svg{width:16px;height:16px}
+.inline-picker-card{background:var(--card);border-radius:22px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-md)}
+.cancel-session-btn{width:100%;background:none;border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+
 /* SEARCH */
 .swrap{position:relative;margin-bottom:10px}
 .search{width:100%;background:var(--card);box-shadow:var(--shadow-sm);border:none;border-radius:14px;padding:13px 14px 13px 40px;color:var(--text);font-size:14px;outline:none;font-family:inherit}
@@ -679,11 +691,15 @@ function setUnit(u){
 
 // ── LAST SESSION LOOKUP ──────────────────────────────────
 function getLastSession(exId, excludeKey){
-  const dates = Object.keys(logs).filter(k=>k!==excludeKey && logs[k][exId] && logs[k]._done).sort().reverse();
-  for(const d of dates){
-    const sets=(logs[d][exId]||[]).filter(s=>s.done && s.w && s.r);
-    if(sets.length){
-      return sets.map(s=>`${s.w}×${s.r}`).join(', ');
+  const dates = Object.keys(logs).filter(k=>k!==excludeKey).sort().reverse();
+  for(const k of dates){
+    getDaySessions(k); // trigger migration if needed
+    const sessions = logs[k]?._sessions || [];
+    for(const s of sessions){
+      if(s._done && s[exId]){
+        const sets=(s[exId]||[]).filter(x=>x.done && x.w && x.r);
+        if(sets.length) return sets.map(x=>`${x.w}×${x.r}`).join(', ');
+      }
     }
   }
   return null;
@@ -789,67 +805,143 @@ function closeEditCex(){
 }
 
 // ── RENDER ────────────────────────────────────────────────
+// ── SESSION HELPERS ───────────────────────────────────────
+// Data shape: logs[dateKey]._sessions = [{type, _exercises, _notes, _done, _startedAt, _at, _durationMin, exId:[{w,r,done}], ...}]
+// Migration: if old flat format (logs[key]._type exists), convert on read
+
+function getDaySessions(key){
+  const log = logs[key];
+  if(!log) return [];
+  // migrate old flat format
+  if(log._type && !log._sessions){
+    const s = { type: log._type, _exercises: log._exercises||[], _notes: log._notes||'',
+      _done: log._done||false, _startedAt: log._startedAt, _at: log._at, _durationMin: log._durationMin };
+    // copy exercise set arrays
+    (log._exercises||[]).forEach(id=>{ s[id] = log[id]||[]; });
+    log._sessions = [s];
+    // clean up flat keys
+    delete log._type; delete log._exercises; delete log._notes;
+    delete log._done; delete log._startedAt; delete log._at; delete log._durationMin;
+    sv2('lift_logs', logs);
+  }
+  return log._sessions || [];
+}
+
+function getSession(key, si){ return getDaySessions(key)[si] || null; }
+
+function ensureSession(key, si){
+  if(!logs[key]) logs[key] = {};
+  if(!logs[key]._sessions) logs[key]._sessions = [];
+  return logs[key]._sessions[si];
+}
+
+function addNewSession(key, type){
+  if(!logs[key]) logs[key] = {};
+  if(!logs[key]._sessions) logs[key]._sessions = [];
+  const myTemplates = ld('lift_templates',{});
+  const saved = myTemplates[type];
+  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+  const s = { type, _exercises: tmpl.map(t=>t.id), _notes:'', _done:false, _startedAt: new Date().toISOString() };
+  tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
+  logs[key]._sessions.push(s);
+  sv2('lift_logs', logs);
+  return logs[key]._sessions.length - 1;
+}
+
+function removeSession(key, si){
+  if(!logs[key]?._sessions) return;
+  logs[key]._sessions.splice(si, 1);
+  sv2('lift_logs', logs);
+}
+
+function dayHasLog(key){
+  const sessions = getDaySessions(key);
+  return sessions.length > 0 && sessions.some(s=>s.type);
+}
+
+// ── RENDER ────────────────────────────────────────────────
 function renderW(){
   renderStrip();
-  const key=dkey(curOff),log=logs[key]||{},type=log._type||null;
+  const key=dkey(curOff);
   document.getElementById('db').textContent=rlabel(curOff);
   const el=document.getElementById('wc');
-  type?renderActive(el,key,type,log):renderPicker(el,key);
-  if(type) setTimeout(()=>{ (logs[key]?._exercises||[]).forEach(id=>initSwipe(id)); },30);
+  const sessions = getDaySessions(key);
+  renderDayView(el, key, sessions);
 }
 
 function renderStrip(){
   const c=document.getElementById('ds');c.innerHTML='';
   for(let i=-5;i<=2;i++){
-    const k=dkey(i),has=!!(logs[k]&&logs[k]._type),p=document.createElement('div');
+    const k=dkey(i),has=dayHasLog(k),p=document.createElement('div');
     p.className='dpill'+(i===curOff?' active':'')+(has&&i!==curOff?' has-log':'');
     p.textContent=rlabel(i);
-    const ci=i;p.onclick=()=>{curOff=ci;renderW();};c.appendChild(p);
+    const ci=i;p.onclick=()=>{curOff=ci;searchCat='__init__';renderW();};c.appendChild(p);
   }
   setTimeout(()=>{const a=c.querySelector('.active');if(a)a.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'})},50);
 }
 
-function renderPicker(el,key){
-  el.innerHTML=`
-    <div class="plabel">What are you training today?</div>
+function renderDayView(el, key, sessions){
+  // If no sessions at all, show the picker for the first session
+  if(!sessions.length){
+    renderPicker(el, key, -1); // -1 = new session
+    return;
+  }
+
+  let html = '';
+
+  sessions.forEach((s, si) => {
+    if(!s.type){
+      // Empty session slot waiting for type selection — show inline picker
+      html += renderInlinePicker(key, si);
+    } else {
+      html += renderSessionCard(key, si, s);
+    }
+  });
+
+  // Add session button
+  html += `<button class="add-session-btn" onclick="startAddSession('${key}')">
+    ${svgIcon('plus')} Add Session
+  </button>`;
+
+  el.innerHTML = html;
+
+  // Init swipe listeners for all sessions
+  setTimeout(()=>{
+    sessions.forEach((s,si)=>{
+      (s._exercises||[]).forEach(id=>initSwipe(id+'_'+si));
+    });
+  }, 30);
+}
+
+function renderInlinePicker(key, si){
+  return `<div class="inline-picker-card">
+    <div class="plabel" style="margin-bottom:12px">Choose workout type</div>
     <div class="pgrid">
       ${Object.entries(WORKOUT_META).map(([t,m])=>`
-        <div class="pbtn ${t}" onclick="selWT('${key}','${t}')">
+        <div class="pbtn ${t}" onclick="selectSessionType('${key}',${si},'${t}')">
           <div class="picon ic-${m.iconKey}">${svgIcon(m.iconKey)}</div>
           <div class="pname">${m.name}</div>
           <div class="psub">${m.subtitle}</div>
         </div>`).join('')}
-    </div>`;
+    </div>
+    ${si>0?`<button class="cancel-session-btn" onclick="cancelSession('${key}',${si})">Cancel</button>`:''}
+  </div>`;
 }
 
-function selWT(key,type){
-  if(!logs[key])logs[key]={};
-  logs[key]._type=type;
-  logs[key]._startedAt = logs[key]._startedAt || new Date().toISOString();
-  searchCat='__init__';
-  // load saved custom template for this type, or fall back to built-in default
-  const myTemplates=ld('lift_templates',{});
-  const saved = myTemplates[type]; // array of {id, sets} or undefined
-  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
-  logs[key]._exercises = tmpl.map(t=>t.id);
-  // init sets for each templated exercise using saved set count
-  tmpl.forEach(t=>{
-    logs[key][t.id]=Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false}));
-  });
-  sv2('lift_logs',logs);renderW();
-}
-
-function renderActive(el,key,type,log){
-  const m=WORKOUT_META[type],exIds=log._exercises||[];
-  const ts=exIds.reduce((a,id)=>a+(log[id]?.length||0),0);
-  const ds2=exIds.reduce((a,id)=>a+(log[id]||[]).filter(s=>s.done).length,0);
-  const pct=ts?Math.round(ds2/ts*100):0;
-  const vol=exIds.reduce((a,id)=>a+(log[id]||[]).filter(s=>s.done).reduce((b,s)=>b+(s.w||0)*(s.r||0),0),0);
+function renderSessionCard(key, si, s){
+  const m = WORKOUT_META[s.type];
+  const exIds = s._exercises||[];
+  const unit = getUnit();
+  const ts = exIds.reduce((a,id)=>a+(s[id]?.length||0),0);
+  const ds2 = exIds.reduce((a,id)=>a+(s[id]||[]).filter(x=>x.done).length,0);
+  const pct = ts?Math.round(ds2/ts*100):0;
+  const vol = exIds.reduce((a,id)=>a+(s[id]||[]).filter(x=>x.done).reduce((b,x)=>b+(x.w||0)*(x.r||0),0),0);
   const R=27,C=2*Math.PI*R,off=C-(pct/100)*C;
-  const unit=getUnit();
 
-  el.innerHTML=`
-    <div class="pcard ${type}">
+  const exCards = exIds.map((id,i)=>renderExCard(getEx(id),s[id]||[],key,i,si)).join('');
+
+  return `<div class="session-block" id="sblock-${si}">
+    <div class="pcard">
       <div class="ring">
         <svg width="64" height="64" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--border)" stroke-width="5.5"/>
@@ -863,47 +955,122 @@ function renderActive(el,key,type,log){
         <div class="psub2">${m.subtitle}</div>
         <div class="pstats">${ds2}/${ts} sets <span class="sep">·</span> ${vol>0?Math.round(vol).toLocaleString()+' '+unit:'Start logging'}</div>
       </div>
-      <button class="chbtn" onclick="chWT('${key}')">${svgIcon('back_arrow')}Back</button>
+      <button class="session-remove-btn" onclick="confirmRemoveSession('${key}',${si})" title="Remove session">${svgIcon('close')}</button>
     </div>
-    ${exIds.length?`<div class="autosave-note">${svgIcon('check')}Template saves automatically as you edit</div>`:''}
-    ${exIds.map((id,i)=>renderExCard(getEx(id),log[id]||[],key,i)).join('')}
-    <div style="margin-top:10px">${renderSearch(key,type,exIds)}</div>
-    <textarea class="ni" rows="3" placeholder="Notes, how it felt, PRs…" oninput="saveNote(this.value,'${key}')">${log._notes||''}</textarea>
-    <button class="finbtn" onclick="finWO('${key}')">${log._done?'Workout Complete':'Finish Workout'}</button>`;
+    ${exIds.length?`<div class="autosave-note">${svgIcon('check')}Auto-saving</div>`:''}
+    ${exCards}
+    <div style="margin-top:10px">${renderSearch(key,s.type,exIds,si)}</div>
+    <textarea class="ni" rows="3" placeholder="Notes…" oninput="saveNote(this.value,'${key}',${si})">${s._notes||''}</textarea>
+    <button class="finbtn" style="margin-bottom:20px" onclick="finWO('${key}',${si})">${s._done?'Complete':'Finish Session'}</button>
+    <div class="session-divider"></div>
+  </div>`;
 }
 
-function chWT(key){
-  if(logs[key]){
-    delete logs[key]._type;
-    delete logs[key]._exercises;
+function renderPicker(el, key, si){
+  el.innerHTML = `<div class="inline-picker-card">
+    <div class="plabel" style="margin-bottom:12px">What are you training today?</div>
+    <div class="pgrid">
+      ${Object.entries(WORKOUT_META).map(([t,m])=>`
+        <div class="pbtn ${t}" onclick="selectSessionType('${key}',0,'${t}')">
+          <div class="picon ic-${m.iconKey}">${svgIcon(m.iconKey)}</div>
+          <div class="pname">${m.name}</div>
+          <div class="psub">${m.subtitle}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function selectSessionType(key, si, type){
+  if(!logs[key]) logs[key]={};
+  if(!logs[key]._sessions) logs[key]._sessions=[];
+  // If si === 0 and no sessions yet, add fresh
+  if(logs[key]._sessions.length === 0){
+    addNewSession(key, type);
+    searchCat='__init__';
+    renderW();
+    return;
   }
-  sv2('lift_logs',logs);renderW();
+  // Fill existing empty slot
+  const s = logs[key]._sessions[si] || {};
+  const myTemplates = ld('lift_templates',{});
+  const saved = myTemplates[type];
+  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+  s.type = type;
+  s._exercises = tmpl.map(t=>t.id);
+  s._startedAt = new Date().toISOString();
+  tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
+  logs[key]._sessions[si] = s;
+  sv2('lift_logs',logs);
+  searchCat='__init__';
+  renderW();
 }
 
-function saveTemplate(key,type){
-  const exIds=(logs[key]?._exercises)||[];
-  if(!exIds.length){toast('Add exercises first!');return}
-  const templates=ld('lift_templates',{});
-  templates[type]=exIds.map(id=>({id, sets:(logs[key][id]||[]).length||getEx(id).sets}));
-  sv2('lift_templates',templates);
-  toast('Saved! This loads automatically next time.');
+function startAddSession(key){
+  if(!logs[key]) logs[key]={};
+  if(!logs[key]._sessions) logs[key]._sessions=[];
+  logs[key]._sessions.push({}); // empty slot — will show inline picker
+  sv2('lift_logs',logs);
+  renderW();
+  // scroll to bottom
+  setTimeout(()=>{ document.querySelector('.scroll').scrollTo({top:99999,behavior:'smooth'}); },100);
 }
 
-// Silently keep the template in sync whenever sets/exercises change for this workout type
-function autoSaveTemplate(key,type){
-  if(!type) type = logs[key]?._type;
-  if(!type) return;
-  const exIds=(logs[key]?._exercises)||[];
+function cancelSession(key, si){
+  removeSession(key, si);
+  renderW();
+}
+
+function confirmRemoveSession(key, si){
+  const sessions = getDaySessions(key);
+  if(sessions.length <= 1){
+    // Last session — go back to picker
+    logs[key]._sessions = [];
+    sv2('lift_logs',logs);
+    renderW();
+    return;
+  }
+  // Confirm removal
+  if(confirm('Remove this session?')){
+    removeSession(key, si);
+    renderW();
+  }
+}
+
+function chWT(key, si){
+  const sessions = getDaySessions(key);
+  if(sessions.length <= 1){
+    logs[key]._sessions = [];
+    sv2('lift_logs',logs);
+  } else {
+    logs[key]._sessions[si] = {};
+    sv2('lift_logs',logs);
+  }
+  renderW();
+}
+
+function saveTemplate(key,type,si){
+  const s = getSession(key,si);
+  if(!s) return;
+  const exIds = s._exercises||[];
   if(!exIds.length) return;
   const templates=ld('lift_templates',{});
-  templates[type]=exIds.map(id=>({id, sets:(logs[key][id]||[]).length||getEx(id).sets}));
+  templates[type]=exIds.map(id=>({id, sets:(s[id]||[]).length||getEx(id).sets}));
+  sv2('lift_templates',templates);
+}
+
+function autoSaveTemplate(key,si){
+  const s = getSession(key,si);
+  if(!s?.type) return;
+  const exIds = s._exercises||[];
+  if(!exIds.length) return;
+  const templates=ld('lift_templates',{});
+  templates[s.type]=exIds.map(id=>({id, sets:(s[id]||[]).length||getEx(id).sets}));
   sv2('lift_templates',templates);
 }
 
 // ── SEARCH ────────────────────────────────────────────────
-function renderSearch(key,type,exIds){
+function renderSearch(key,type,exIds,si){
   const m=WORKOUT_META[type];
-  // default chip = this workout's own PPL group if it has one, else 'All'
   const defaultPPL = ALL_PPL.find(p=>m.suggestCats?.some(c=>CAT_TO_PPL[c]===p)) || 'All';
   if(searchCat==='__init__') searchCat = defaultPPL;
   const chips=['All',...ALL_PPL];
@@ -911,30 +1078,27 @@ function renderSearch(key,type,exIds){
     <div class="plabel" style="margin-top:4px">Add an exercise</div>
     <div class="swrap">
       <span class="sicon">${svgIcon('search')}</span>
-      <input class="search" id="exSearch" placeholder="Search ${DB.length}+ exercises…"
-        oninput="filterEx(this.value,'${key}','${type}')" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input class="search" id="exSearch-${si}" placeholder="Search ${DB.length}+ exercises…"
+        oninput="filterEx(this.value,'${key}','${type}',${si})" autocomplete="off" autocorrect="off" spellcheck="false">
     </div>
-    <div class="chips" id="chips">
-      ${chips.map(c=>`<div class="chip${c===searchCat?' on':''}" onclick="setCat('${c}','${key}','${type}')">${c}</div>`).join('')}
+    <div class="chips" id="chips-${si}">
+      ${chips.map(c=>`<div class="chip${c===searchCat?' on':''}" onclick="setCat('${c}','${key}','${type}',${si})">${c}</div>`).join('')}
     </div>
-    <div id="exResults">${renderGrouped(key,type,exIds,'')}</div>`;
+    <div id="exResults-${si}">${renderGrouped(key,type,exIds,si,'')}</div>`;
 }
 
 // Group exercises: PPL section -> body part subsection, filtered by chip + optional query
-function renderGrouped(key,type,exIds,query){
+function renderGrouped(key,type,exIds,si,query){
   const q=(query||'').toLowerCase().trim();
   let pool = DB.filter(e=>!exIds.includes(e.id));
   if(searchCat && searchCat!=='All') pool = pool.filter(e=>e.ppl===searchCat);
   if(q) pool = pool.filter(e=>e.name.toLowerCase().includes(q));
-
   if(!pool.length){
     if(q.length>2){
-      return `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}')">＋ Add "${query}" as custom exercise</div></div>`;
+      return `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}',${si})">+ Add "${query}" as custom exercise</div></div>`;
     }
     return '<div class="empty" style="padding:20px">No exercises found.</div>';
   }
-
-  // group by ppl, then by cat (body part), preserving ALL_PPL order
   const pplGroups = ALL_PPL.filter(p=>pool.some(e=>e.ppl===p));
   let html='';
   pplGroups.forEach(ppl=>{
@@ -945,19 +1109,19 @@ function renderGrouped(key,type,exIds,query){
     cats.forEach(cat=>{
       const items = pplItems.filter(e=>e.cat===cat).slice(0, q ? 20 : 5);
       html += `<div class="bodypart-label">${cat}</div>`;
-      html += `<div class="sresults">${items.map(e=>exRow(e,key,type)).join('')}</div>`;
+      html += `<div class="sresults">${items.map(e=>exRow(e,key,type,si)).join('')}</div>`;
     });
   });
   if(q.length>2){
-    html += `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}')">＋ Add "${query}" as custom exercise</div></div>`;
+    html += `<div class="sresults"><div class="add-custom" onclick="addCex('${q.replace(/'/g,"\\'")}','${key}','${type}',${si})">+ Add "${query}" as custom exercise</div></div>`;
   }
   return html;
 }
 
-function exRow(e,key,type){
+function exRow(e,key,type,si){
   const col=CAT_COLORS[e.cat]||'var(--accent)';
   const ik=CAT_TO_ICON[e.cat]||'custom';
-  return`<div class="sri" onclick="addEx('${e.id}','${key}','${type}')">
+  return`<div class="sri" onclick="addEx('${e.id}','${key}','${type}',${si})">
     <span class="sri-icon">${svgIcon(ik)}</span>
     <div style="flex:1;min-width:0">
       <div class="sri-name">${e.name}</div>
@@ -967,62 +1131,58 @@ function exRow(e,key,type){
   </div>`;
 }
 
-function filterEx(q,key,type){
-  const el=document.getElementById('exResults');
-  const exIds=(logs[key]||{})._exercises||[];
-  el.innerHTML=renderGrouped(key,type,exIds,q);
+function filterEx(q,key,type,si){
+  const el=document.getElementById(`exResults-${si}`);
+  if(!el) return;
+  const s = getSession(key,si);
+  const exIds=(s?._exercises)||[];
+  el.innerHTML=renderGrouped(key,type,exIds,si,q);
 }
 
-function setCat(cat,key,type){
+function setCat(cat,key,type,si){
   searchCat=cat;
-  const el=document.getElementById('exSearch');
+  const el=document.getElementById(`exSearch-${si}`);
   const q=el?el.value:'';
   document.querySelectorAll('.chip').forEach(c=>{c.classList.toggle('on',c.textContent===cat)});
-  filterEx(q,key,type);
+  filterEx(q,key,type,si);
 }
 
-function addEx(id,key,type){
-  if(!logs[key])logs[key]={_type:type};
-  if(!logs[key]._exercises)logs[key]._exercises=[];
-  if(logs[key]._exercises.includes(id)){toast('Already added!');return}
-  logs[key]._exercises.push(id);
+function addEx(id,key,type,si){
+  const s=ensureSession(key,si);if(!s)return;
+  if(!s._exercises)s._exercises=[];
+  if(s._exercises.includes(id)){toast('Already added!');return}
+  s._exercises.push(id);
   const ex=getEx(id);
-  logs[key][id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
-  sv2('lift_logs',logs);
-  toast('Added: '+ex.name);
-  autoSaveTemplate(key,type);
-  qsync(key);
-  renderW();
-  setTimeout(()=>openEx(id),60);
+  s[id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
+  sv2('lift_logs',logs);toast('Added: '+ex.name);
+  autoSaveTemplate(key,si);qsync(key);renderW();
+  setTimeout(()=>openEx(id+'_'+si),60);
 }
 
-function addCex(name,key,type){
-  // open a modal to let the user pick category + sets/reps instead of dumping into generic "Custom"
-  pendingCex = { name, key, type };
-  document.getElementById('cexName').textContent = name;
-  const catSel = document.getElementById('cexCat');
-  catSel.innerHTML = ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
-  // pre-select based on current workout type's primary category if sensible
-  const m = WORKOUT_META[type];
-  if(m?.suggestCats?.length) catSel.value = m.suggestCats[0];
-  document.getElementById('cexSets').value = 3;
-  document.getElementById('cexReps').value = '8–12';
+function addCex(name,key,type,si){
+  pendingCex={name,key,type,si};
+  document.getElementById('cexName').textContent=name;
+  const catSel=document.getElementById('cexCat');
+  catSel.innerHTML=ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const m=WORKOUT_META[type];
+  if(m?.suggestCats?.length)catSel.value=m.suggestCats[0];
+  document.getElementById('cexSets').value=3;
+  document.getElementById('cexReps').value='8–12';
   document.getElementById('cexModal').classList.add('open');
 }
 
 function confirmAddCex(){
-  if(!pendingCex) return;
-  const { name, key, type } = pendingCex;
-  const cat = document.getElementById('cexCat').value;
-  const sets = parseInt(document.getElementById('cexSets').value) || 3;
-  const reps = document.getElementById('cexReps').value.trim() || '8–12';
-  const id = 'cx_' + Date.now();
-  const ppl = CAT_TO_PPL[cat] || 'Other';
-  cexs.push({ id, name, cat, ppl, sets, reps, note:'Custom' });
-  sv2('lift_cx', cexs);
+  if(!pendingCex)return;
+  const {name,key,type,si}=pendingCex;
+  const cat=document.getElementById('cexCat').value;
+  const sets=parseInt(document.getElementById('cexSets').value)||3;
+  const reps=document.getElementById('cexReps').value.trim()||'8–12';
+  const id='cx_'+Date.now();
+  const ppl=CAT_TO_PPL[cat]||'Other';
+  cexs.push({id,name,cat,ppl,sets,reps,note:'Custom'});
+  sv2('lift_cx',cexs);
   document.getElementById('cexModal').classList.remove('open');
-  addEx(id, key, type);
-  pendingCex = null;
+  addEx(id,key,type,si);pendingCex=null;
 }
 
 function closeCexModal(){
@@ -1031,17 +1191,18 @@ function closeCexModal(){
 }
 
 // ── EXERCISE CARD ─────────────────────────────────────────
-function renderExCard(ex,sets,key,idx){
+function renderExCard(ex,sets,key,idx,si){
+  const uid=ex.id+'_'+si;
   const allDone=sets.length>0&&sets.every(s=>s.done);
   const pr=prs[ex.id];
-  const isCustom = cexs.some(c=>c.id===ex.id);
-  const last = getLastSession(ex.id, key);
+  const isCustom=cexs.some(c=>c.id===ex.id);
+  const last=getLastSession(ex.id,key);
   const ik=CAT_TO_ICON[ex.cat]||'custom';
   return`
-  <div class="swipe-wrap" id="sw-${ex.id}">
-    <div class="swipe-delete" onclick="removeEx('${key}','${ex.id}')">${svgIcon('trash')}Remove</div>
-    <div class="exc${allDone?' ec':''}" id="exc-${ex.id}">
-      <div class="exh" onclick="toggleEx('${ex.id}')">
+  <div class="swipe-wrap" id="sw-${uid}">
+    <div class="swipe-delete" onclick="removeEx('${key}','${ex.id}',${si})">${svgIcon('trash')}Remove</div>
+    <div class="exc${allDone?' ec':''}" id="exc-${uid}">
+      <div class="exh" onclick="toggleEx('${uid}')">
         <div class="exi${allDone?' done-icon':''}">${svgIcon(ik)}</div>
         <div style="flex:1;min-width:0">
           <div class="exn">${ex.name}${pr?`<span class="prb">${svgIcon('star')}${pr.weight}×${pr.reps}</span>`:''}</div>
@@ -1049,27 +1210,25 @@ function renderExCard(ex,sets,key,idx){
           ${last?`<div class="exlast">${svgIcon('trend')}Last: ${last}</div>`:''}
         </div>
         ${isCustom?`<button class="editbtn" onclick="event.stopPropagation();openEditCex('${ex.id}')" title="Edit">${svgIcon('pencil')}</button>`:''}
-        <div class="excv" id="chv-${ex.id}">${svgIcon('back_arrow')}</div>
+        <div class="excv" id="chv-${uid}">${svgIcon('back_arrow')}</div>
       </div>
-      <div class="sp" id="sp-${ex.id}">
+      <div class="sp" id="sp-${uid}">
         <div class="sth"><span></span><span>Weight (${getUnit()})</span><span>Reps</span><span>${svgIcon('check')}</span></div>
-        ${sets.map((s,si)=>`
-          <div class="sr" id="sr-${ex.id}-${si}">
-            <div class="sn">${si+1}</div>
+        ${sets.map((s,seti)=>`
+          <div class="sr" id="sr-${uid}-${seti}">
+            <div class="sn">${seti+1}</div>
             <input type="number" inputmode="decimal" class="si plate-hold" value="${s.w||''}" placeholder="${pr?pr.weight:'0'}"
-              onchange="updSet('${key}','${ex.id}',${si},'w',this.value)">
+              onchange="updSet('${key}','${ex.id}',${seti},'w',this.value,${si})">
             <input type="number" inputmode="numeric" class="si" value="${s.r||''}" placeholder="${ex.reps}"
-              onchange="updSet('${key}','${ex.id}',${si},'r',this.value)">
-            <button class="ck${s.done?' on':''}" onclick="togDone('${key}','${ex.id}',${si})">${s.done?svgIcon('check'):''}</button>
+              onchange="updSet('${key}','${ex.id}',${seti},'r',this.value,${si})">
+            <button class="ck${s.done?' on':''}" onclick="togDone('${key}','${ex.id}',${seti},${si})">${s.done?svgIcon('check'):''}</button>
           </div>`).join('')}
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="asb" style="flex:1" onclick="addSet('${key}','${ex.id}')">+ Add Set</button>
-          ${sets.length>1?`<button class="asb" style="flex:0 0 44px;color:var(--red)" onclick="removeSet('${key}','${ex.id}')">−</button>`:''}
+          <button class="asb" style="flex:1" onclick="addSet('${key}','${ex.id}',${si})">+ Add Set</button>
+          ${sets.length>1?`<button class="asb" style="flex:0 0 44px;color:var(--red)" onclick="removeSet('${key}','${ex.id}',${si})">−</button>`:''}
         </div>
       </div>
-
     </div>
-
   </div>`;
 }
 
@@ -1125,105 +1284,132 @@ function initSwipe(id){
   },{passive:true});
 }
 
-function toggleEx(id){
-  const sp=document.getElementById('sp-'+id),chv=document.getElementById('chv-'+id),card=document.getElementById('exc-'+id);
+function toggleEx(uid){
+  const sp=document.getElementById('sp-'+uid),chv=document.getElementById('chv-'+uid),card=document.getElementById('exc-'+uid);
   const isOpen=sp?.classList.contains('open');
   document.querySelectorAll('.sp').forEach(e=>e.classList.remove('open'));
   document.querySelectorAll('.excv').forEach(e=>e.classList.remove('open'));
   document.querySelectorAll('.exc').forEach(e=>e.classList.remove('ea'));
   if(!isOpen&&sp){sp.classList.add('open');chv?.classList.add('open');card?.classList.add('ea')}
 }
-function openEx(id){
-  const sp=document.getElementById('sp-'+id);
-  if(sp){sp.classList.add('open');document.getElementById('chv-'+id)?.classList.add('open');document.getElementById('exc-'+id)?.classList.add('ea')}
+function openEx(uid){
+  const sp=document.getElementById('sp-'+uid);
+  if(sp){sp.classList.add('open');document.getElementById('chv-'+uid)?.classList.add('open');document.getElementById('exc-'+uid)?.classList.add('ea')}
 }
 
-function updSet(key,id,si,f,val){
-  if(!logs[key])logs[key]={};
-  if(!logs[key][id])logs[key][id]=[];
-  while(logs[key][id].length<=si)logs[key][id].push({w:'',r:'',done:false});
-  logs[key][id][si][f]=f==='r'?parseInt(val)||0:parseFloat(val)||0;
+function updSet(key,exId,seti,f,val,si){
+  const s=ensureSession(key,si);if(!s)return;
+  if(!s[exId])s[exId]=[];
+  while(s[exId].length<=seti)s[exId].push({w:'',r:'',done:false});
+  s[exId][seti][f]=f==='r'?parseInt(val)||0:parseFloat(val)||0;
   sv2('lift_logs',logs);
-  const s=logs[key][id][si];if(s.w&&s.r)chkPR(id,s.w,s.r);
+  const set=s[exId][seti];if(set.w&&set.r)chkPR(exId,set.w,set.r);
   qsync(key);
 }
 
-function togDone(key,id,si){
-  if(!logs[key]?.[id]?.[si])return;
-  logs[key][id][si].done=!logs[key][id][si].done;sv2('lift_logs',logs);
-  const btn=document.querySelector(`#sr-${id}-${si} .ck`);
+function togDone(key,exId,seti,si){
+  const s=getSession(key,si);if(!s?.[exId]?.[seti]===undefined)return;
+  if(!s[exId])return;
+  s[exId][seti].done=!s[exId][seti].done;sv2('lift_logs',logs);
+  const uid=exId+'_'+si;
+  const btn=document.querySelector(`#sr-${uid}-${seti} .ck`);
   if(btn){
-    const d=logs[key][id][si].done;
+    const d=s[exId][seti].done;
     btn.className='ck'+(d?' on':'');btn.innerHTML=d?svgIcon('check'):'';
-    if(d){ toast('Set done'); startRestTimer(90); if(navigator.vibrate) navigator.vibrate(60); }
+    if(d){toast('Set done');startRestTimer(90);if(navigator.vibrate)navigator.vibrate(60);}
   }
   setTimeout(renderW,250);qsync(key);
 }
 
-function removeEx(key,id){
-  if(!logs[key])return;
-  logs[key]._exercises=(logs[key]._exercises||[]).filter(e=>e!==id);
-  delete logs[key][id];
-  sv2('lift_logs',logs);autoSaveTemplate(key);qsync(key);renderW();
+function removeEx(key,id,si){
+  const s=getSession(key,si);if(!s)return;
+  s._exercises=(s._exercises||[]).filter(e=>e!==id);
+  delete s[id];
+  sv2('lift_logs',logs);autoSaveTemplate(key,si);qsync(key);renderW();
 }
 
-function addSet(key,id){
-  if(!logs[key])logs[key]={};if(!logs[key][id])logs[key][id]=[];
-  logs[key][id].push({w:'',r:'',done:false});sv2('lift_logs',logs);
-  autoSaveTemplate(key);
-  qsync(key);
-  renderW();setTimeout(()=>openEx(id),40);
+function addSet(key,id,si){
+  const s=ensureSession(key,si);if(!s)return;
+  if(!s[id])s[id]=[];
+  s[id].push({w:'',r:'',done:false});sv2('lift_logs',logs);
+  autoSaveTemplate(key,si);qsync(key);
+  renderW();setTimeout(()=>openEx(id+'_'+si),40);
 }
 
-function removeSet(key,id){
-  if(!logs[key]?.[id]||logs[key][id].length<=1)return;
-  logs[key][id].pop();
-  sv2('lift_logs',logs);
-  autoSaveTemplate(key);
-  qsync(key);
-  renderW();setTimeout(()=>openEx(id),40);
+function removeSet(key,id,si){
+  const s=getSession(key,si);if(!s?.[id]||s[id].length<=1)return;
+  s[id].pop();sv2('lift_logs',logs);
+  autoSaveTemplate(key,si);qsync(key);
+  renderW();setTimeout(()=>openEx(id+'_'+si),40);
 }
 
-function saveNote(val,key){if(!logs[key])logs[key]={};logs[key]._notes=val;sv2('lift_logs',logs);qsync(key)}
+function saveNote(val,key,si){
+  const s=ensureSession(key,si);if(!s)return;
+  s._notes=val;sv2('lift_logs',logs);qsync(key);
+}
 
-function finWO(key){
-  if(!logs[key]||(logs[key]._exercises||[]).length===0){toast('Add exercises first!');return}
-  logs[key]._done=true;logs[key]._at=new Date().toISOString();
-  if(logs[key]._startedAt){
-    const mins=Math.round((new Date(logs[key]._at)-new Date(logs[key]._startedAt))/60000);
-    logs[key]._durationMin = mins;
+function finWO(key,si){
+  const s=getSession(key,si);
+  if(!s||(s._exercises||[]).length===0){toast('Add exercises first!');return}
+  s._done=true;s._at=new Date().toISOString();
+  if(s._startedAt){
+    const mins=Math.round((new Date(s._at)-new Date(s._startedAt))/60000);
+    s._durationMin=mins;
   }
   sv2('lift_logs',logs);
-  dsync(key).then(()=>toast('Saved & backed up to GitHub'));
+  dsync(key).then(()=>toast('Saved & backed up'));
   setTimeout(renderW,300);
 }
 
 // ── HISTORY ───────────────────────────────────────────────
 function renderHistory(){
-  const entries=Object.entries(logs).filter(([,v])=>v._done).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
+  // Get all days that have at least one finished session
+  const entries = Object.entries(logs)
+    .map(([key,log])=>{ getDaySessions(key); return [key,log]; }) // trigger migration
+    .filter(([,log])=>( (log._sessions||[]).some(s=>s._done) ))
+    .sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
   const el=document.getElementById('hl');
   if(!entries.length){el.innerHTML='<div class="empty">No completed workouts yet.<br>Finish your first session!</div>';return}
   const unit=getUnit();
   el.innerHTML=entries.map(([key,log])=>{
-    const type=log._type||'custom',m=WORKOUT_META[type]||WORKOUT_META.custom;
-    const exIds=log._exercises||[];
-    const vol=exIds.reduce((a,id)=>a+(log[id]||[]).filter(s=>s.done).reduce((b,s)=>b+(s.w||0)*(s.r||0),0),0);
-    const d=new Date(key),ds2=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const dur=log._durationMin?` · ${log._durationMin}m`:'';
-    return`<div class="hrow2"><div class="hdot" style="background:${m.color}"></div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:700">${m.name}</div><div style="font-size:12px;color:var(--dim);margin-top:2px">${ds2} · ${exIds.length} exercises${dur}</div></div>
-      <div style="font-size:14px;font-weight:700;color:var(--dim)">${vol>0?Math.round(vol).toLocaleString()+' '+unit:'–'}</div></div>`;
+    const sessions=(log._sessions||[]).filter(s=>s._done);
+    const d=new Date(key),ds=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const dayVol=sessions.reduce((a,s)=>(s._exercises||[]).reduce((b,id)=>b+(s[id]||[]).filter(x=>x.done).reduce((c,x)=>c+(x.w||0)*(x.r||0),0),a),0);
+    const sessionTags=sessions.map(s=>{const m=WORKOUT_META[s.type]||WORKOUT_META.custom;return`<span style="display:inline-flex;align-items:center;gap:4px;margin-right:6px"><span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}</span>`;}).join('');
+    const totalEx=sessions.reduce((a,s)=>(s._exercises||[]).length+a,0);
+    const dur=sessions.reduce((a,s)=>a+(s._durationMin||0),0);
+    return`<div class="hrow2">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;margin-bottom:3px">${sessionTags}</div>
+        <div style="font-size:12px;color:var(--dim)">${ds} · ${totalEx} exercises${dur?` · ${dur}m`:''}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--dim)">${dayVol>0?Math.round(dayVol).toLocaleString()+' '+unit:'–'}</div>
+    </div>`;
   }).join('');
 }
 
 // ── STATS ─────────────────────────────────────────────────
 function renderStats(){
-  const entries=Object.entries(logs).filter(([,v])=>v._done).sort((a,b)=>a[0].localeCompare(b[0])).slice(-8);
-  const vols=entries.map(([,log])=>(log._exercises||[]).reduce((a,id)=>a+(log[id]||[]).filter(s=>s.done).reduce((b,s)=>b+(s.w||0)*(s.r||0),0),0));
-  const maxV=Math.max(...vols,1);
+  const allDays=Object.entries(logs)
+    .map(([key,log])=>{ getDaySessions(key); return [key,log]; })
+    .filter(([,log])=>(log._sessions||[]).some(s=>s._done))
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+
+  const entries=allDays.slice(-8);
   const unit=getUnit();
+
+  const vols=entries.map(([,log])=>(log._sessions||[]).reduce((a,s)=>
+    (s._exercises||[]).reduce((b,id)=>b+(s[id]||[]).filter(x=>x.done).reduce((c,x)=>c+(x.w||0)*(x.r||0),0),a),0));
+  const maxV=Math.max(...vols,1);
+
   document.getElementById('vc').innerHTML=vols.length
-    ?vols.map((v,i)=>{const h=Math.max(4,(v/maxV)*44),t=logs[entries[i][0]]._type||'custom',col=WORKOUT_META[t]?.color||'var(--accent)';return`<div class="mb" style="height:${h}px;background:${col};opacity:.85"></div>`}).join('')
+    ?vols.map((v,i)=>{
+        const h=Math.max(4,(v/maxV)*44);
+        const sessions=(logs[entries[i][0]]._sessions||[]).filter(s=>s._done);
+        // multi-session: use first session's color as representative
+        const col=WORKOUT_META[sessions[0]?.type]?.color||'var(--accent)';
+        return`<div class="mb" style="height:${h}px;background:${col};opacity:.85"></div>`;
+      }).join('')
     :'<div class="empty" style="padding:12px">Log workouts to see trends.</div>';
 
   const prEntries=Object.entries(prs).sort((a,b)=>b[1].e1rm-a[1].e1rm);
@@ -1238,7 +1424,10 @@ function renderStats(){
         </div></div>`;
       }).join('')
     :'<div class="empty">Log workouts to track your PRs.</div>';
-  document.getElementById('tw').textContent=Object.values(logs).filter(v=>v._done).length;
+
+  // Total completed sessions (not days)
+  const totalSessions=Object.values(logs).reduce((a,log)=>a+(log._sessions||[]).filter(s=>s._done).length,0);
+  document.getElementById('tw').textContent=totalSessions;
 }
 
 // ── NAV ───────────────────────────────────────────────────
