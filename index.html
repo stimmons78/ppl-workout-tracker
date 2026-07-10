@@ -160,6 +160,9 @@ body.light .exi{box-shadow:inset 0 1px 1px rgba(255,255,255,.5)}
 .add-session-btn svg{width:16px;height:16px}
 .inline-picker-card{background:var(--card);border-radius:22px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-md)}
 .cancel-session-btn{width:100%;background:none;border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.session-pill{flex:0 0 auto;padding:6px 12px;border-radius:20px;border:1.5px solid;background:transparent;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.session-pill-add{border-color:var(--accent);color:var(--accent)}
+#sessionBar::-webkit-scrollbar{display:none}
 
 /* SEARCH */
 .swrap{position:relative;margin-bottom:10px}
@@ -266,6 +269,8 @@ body.light .toast{background:#1f2030}
         <button class="sbtn" onclick="openSettings()"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V19a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1H19a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z"/></svg></button>
       </div>
     </div>
+    <!-- SESSION BAR: shows active sessions + add button, only when workout view is active -->
+    <div id="sessionBar" style="display:none;margin-top:10px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px"></div>
   </div>
   <div class="scroll">
     <div id="view-workout" class="view active">
@@ -866,6 +871,7 @@ function renderW(){
   document.getElementById('db').textContent=rlabel(curOff);
   const el=document.getElementById('wc');
   const sessions = getDaySessions(key);
+  renderSessionBar(key, sessions);
   renderDayView(el, key, sessions);
 }
 
@@ -880,32 +886,51 @@ function renderStrip(){
   setTimeout(()=>{const a=c.querySelector('.active');if(a)a.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'})},50);
 }
 
-function renderDayView(el, key, sessions){
-  // If no sessions at all, show the picker for the first session
+function renderSessionBar(key, sessions){
+  const bar = document.getElementById('sessionBar');
+  // hide if no sessions yet or on non-workout views
   if(!sessions.length){
-    renderPicker(el, key, -1); // -1 = new session
+    bar.style.display='none';
     return;
   }
+  bar.style.display='flex';
+  const typedSessions = sessions.filter(s=>s.type);
+  let html = typedSessions.map((s,si)=>{
+    const m = WORKOUT_META[s.type]||WORKOUT_META.custom;
+    const done = s._done;
+    return `<button class="session-pill" onclick="scrollToSession(${si})"
+      style="background:${done?m.color:''};border-color:${m.color};color:${done?'#fff':m.color}">
+      <span style="width:6px;height:6px;border-radius:50%;background:${done?'rgba(255,255,255,.6)':m.color};display:${done?'inline-block':'none'}"></span>
+      ${m.name}${done?' ✓':''}
+    </button>`;
+  }).join('');
+  // Always show + Add button
+  html += `<button class="session-pill session-pill-add" onclick="startAddSession('${key}')">
+    <svg style="width:12px;height:12px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Add
+  </button>`;
+  bar.innerHTML = html;
+}
 
+function scrollToSession(si){
+  const el = document.getElementById('sblock-'+si);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderDayView(el, key, sessions){
+  if(!sessions.length){
+    renderPicker(el, key, -1);
+    return;
+  }
   let html = '';
-
   sessions.forEach((s, si) => {
     if(!s.type){
-      // Empty session slot waiting for type selection — show inline picker
       html += renderInlinePicker(key, si);
     } else {
       html += renderSessionCard(key, si, s);
     }
   });
-
-  // Add session button
-  html += `<button class="add-session-btn" onclick="startAddSession('${key}')">
-    ${svgIcon('plus')} Add Session
-  </button>`;
-
   el.innerHTML = html;
-
-  // Init swipe listeners for all sessions
   setTimeout(()=>{
     sessions.forEach((s,si)=>{
       (s._exercises||[]).forEach(id=>initSwipe(id+'_'+si));
@@ -1023,28 +1048,20 @@ function cancelSession(key, si){
 function confirmRemoveSession(key, si){
   const sessions = getDaySessions(key);
   if(sessions.length <= 1){
-    // Last session — go back to picker
+    // Last session — go back to empty picker
     logs[key]._sessions = [];
     sv2('lift_logs',logs);
     renderW();
     return;
   }
-  // Confirm removal
-  if(confirm('Remove this session?')){
-    removeSession(key, si);
-    renderW();
-  }
+  removeSession(key, si);
+  renderW();
 }
 
 function chWT(key, si){
-  const sessions = getDaySessions(key);
-  if(sessions.length <= 1){
-    logs[key]._sessions = [];
-    sv2('lift_logs',logs);
-  } else {
-    logs[key]._sessions[si] = {};
-    sv2('lift_logs',logs);
-  }
+  // Just clear the type so the inline picker shows — exercises and sets are preserved
+  const s = getSession(key, si);
+  if(s){ delete s.type; sv2('lift_logs',logs); }
   renderW();
 }
 
