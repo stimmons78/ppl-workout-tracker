@@ -566,57 +566,776 @@ const DB = [
 
   // ── MACHINES ─────────────────────────────────────────────
   // Chest machines
-  {id:'mc1',  name:'Chest Press Machine',         cat:'Machines', sets:3, reps:'8–12',  note:'Plate-loaded or selectorized. Control the negative.'},
-  {id:'mc2',  name:'Incline Chest Press Machine', cat:'Machines', sets:3, reps:'8–12',  note:'Upper chest. Set back pad upright.'},
-  {id:'mc3',  name:'Decline Chest Press Machine', cat:'Machines', sets:3, reps:'10–12', note:'Lower chest emphasis.'},
-  {id:'mc4',  name:'Pec Deck (Butterfly)',        cat:'Machines', sets:3, reps:'12–15', note:'Full ROM. Squeeze at center.'},
-  {id:'mc5',  name:'Cable Chest Fly',             cat:'Machines', sets:3, reps:'12–15', note:'Set cables at chest height.'},
+  {id:'mc1',  name:'Chest Press Machine',         cat:'Chest', sets:3, reps:'8–12',  note:'Plate-loaded or selectorized. Control the negative.', machine:true},
+  {id:'mc2',  name:'Incline Chest Press Machine', cat:'Chest', sets:3, reps:'8–12',  note:'Upper chest. Set back pad upright.', machine:true},
+  {id:'mc3',  name:'Decline Chest Press Machine', cat:'Chest', sets:3, reps:'10–12', note:'Lower chest emphasis.', machine:true},
+  {id:'mc4',  name:'Pec Deck (Butterfly)',        cat:'Chest', sets:3, reps:'12–15', note:'Full ROM. Squeeze at center.', machine:true},
+  {id:'mc5',  name:'Cable Chest Fly',             cat:'Chest', sets:3, reps:'12–15', note:'Set cables at chest height.', machine:true},
   // Shoulder machines
-  {id:'mc6',  name:'Shoulder Press Machine',      cat:'Machines', sets:3, reps:'8–12',  note:'Seated. Full overhead extension.'},
-  {id:'mc7',  name:'Lateral Raise Machine',       cat:'Machines', sets:3, reps:'12–15', note:'Constant tension vs dumbbells.'},
-  {id:'mc8',  name:'Rear Delt Machine',           cat:'Machines', sets:3, reps:'12–15', note:'Face the pad. Elbows flared.'},
-  {id:'mc9',  name:'Cable Face Pull',             cat:'Machines', sets:3, reps:'15–20', note:'Rope attachment at eye level.'},
+  {id:'mc6',  name:'Shoulder Press Machine',      cat:'Shoulders', sets:3, reps:'8–12',  note:'Seated. Full overhead extension.', machine:true},
+  {id:'mc7',  name:'Lateral Raise Machine',       cat:'Shoulders', sets:3, reps:'12–15', note:'Constant tension vs dumbbells.', machine:true},
+  {id:'mc8',  name:'Rear Delt Machine',           cat:'Shoulders', sets:3, reps:'12–15', note:'Face the pad. Elbows flared.', machine:true},
+  {id:'mc9',  name:'Cable Face Pull',             cat:'Shoulders', sets:3, reps:'15–20', note:'Rope attachment at eye level.', machine:true},
   // Back machines
-  {id:'mc10', name:'Lat Pulldown Machine',        cat:'Machines', sets:3, reps:'8–12',  note:'Wide or close grip. Full stretch at top.'},
-  {id:'mc11', name:'Seated Cable Row',            cat:'Machines', sets:3, reps:'10–12', note:'V-bar or wide grip. Chest up.'},
-  {id:'mc12', name:'Chest-Supported Row Machine', cat:'Machines', sets:3, reps:'10–12', note:'No cheating. Strict form only.'},
-  {id:'mc13', name:'Low Row Machine',             cat:'Machines', sets:3, reps:'10–12', note:'Elbows in tight. Full contraction.'},
-  {id:'mc14', name:'High Row Machine',            cat:'Machines', sets:3, reps:'10–12', note:'Elbows flared. Upper back focus.'},
-  {id:'mc15', name:'Assisted Pull-up Machine',    cat:'Machines', sets:3, reps:'8–12',  note:'Counterweight. Build to bodyweight.'},
-  {id:'mc16', name:'Back Extension Machine',      cat:'Machines', sets:3, reps:'12–15', note:'Lower back. Controlled movement.'},
+  {id:'mc10', name:'Lat Pulldown Machine',        cat:'Back', sets:3, reps:'8–12',  note:'Wide or close grip. Full stretch at top.', machine:true},
+  {id:'mc11', name:'Seated Cable Row',            cat:'Back', sets:3, reps:'10–12', note:'V-bar or wide grip. Chest up.', machine:true},
+  {id:'mc12', name:'Chest-Supported Row Machine', cat:'Back', sets:3, reps:'10–12', note:'No cheating. Strict form only.', machine:true},
+  {id:'mc13', name:'Low Row Machine',             cat:'Back', sets:3, reps:'10–12', note:'Elbows in tight. Full contraction.', machine:true},
+  {id:'mc14', name:'High Row Machine',            cat:'Back', sets:3, reps:'10–12', note:'Elbows flared. Upper back focus.', machine:true},
+  {id:'mc15', name:'Assisted Pull-up Machine',    cat:'Back', sets:3, reps:'8–12',  note:'Counterweight. Build to bodyweight.', machine:true},
+  {id:'mc16', name:'Back Extension Machine',      cat:'Back', sets:3, reps:'12–15', note:'Lower back. Controlled movement.', machine:true},
   // Arm machines
-  {id:'mc17', name:'Bicep Curl Machine',          cat:'Machines', sets:3, reps:'10–12', note:'Preacher or seated. Full ROM.'},
-  {id:'mc18', name:'Tricep Extension Machine',    cat:'Machines', sets:3, reps:'10–15', note:'Overhead or pushdown style.'},
-  {id:'mc19', name:'Cable Pushdown (Rope)',       cat:'Machines', sets:3, reps:'10–15', note:'Flare rope at bottom.'},
-  {id:'mc20', name:'Cable Pushdown (Bar)',        cat:'Machines', sets:3, reps:'10–15', note:'Consistent grip, full lockout.'},
-  {id:'mc21', name:'Cable Curl',                 cat:'Machines', sets:3, reps:'12–15', note:'Constant tension. Great finisher.'},
+  {id:'mc17', name:'Bicep Curl Machine',          cat:'Biceps', sets:3, reps:'10–12', note:'Preacher or seated. Full ROM.', machine:true},
+  {id:'mc18', name:'Tricep Extension Machine',    cat:'Triceps', sets:3, reps:'10–15', note:'Overhead or pushdown style.', machine:true},
+  {id:'mc19', name:'Cable Pushdown (Rope)',       cat:'Triceps', sets:3, reps:'10–15', note:'Flare rope at bottom.', machine:true},
+  {id:'mc20', name:'Cable Pushdown (Bar)',        cat:'Triceps', sets:3, reps:'10–15', note:'Consistent grip, full lockout.', machine:true},
+  {id:'mc21', name:'Cable Curl',                 cat:'Biceps', sets:3, reps:'12–15', note:'Constant tension. Great finisher.', machine:true},
   // Leg machines
-  {id:'mc22', name:'Leg Press Machine',           cat:'Machines', sets:4, reps:'10–15', note:'Feet high = glutes. Feet low = quads.'},
-  {id:'mc23', name:'Leg Extension Machine',       cat:'Machines', sets:3, reps:'12–15', note:'Full extension. Squeeze at top.'},
-  {id:'mc24', name:'Seated Leg Curl Machine',     cat:'Machines', sets:3, reps:'12–15', note:'Better stretch than lying.'},
-  {id:'mc25', name:'Lying Leg Curl Machine',      cat:'Machines', sets:3, reps:'10–15', note:'Don\'t let hips rise.'},
-  {id:'mc26', name:'Hack Squat Machine',          cat:'Machines', sets:3, reps:'8–12',  note:'Feet together = more quad.'},
-  {id:'mc27', name:'Smith Machine Squat',         cat:'Machines', sets:4, reps:'8–12',  note:'Feet forward for safety.'},
-  {id:'mc28', name:'Smith Machine Lunge',         cat:'Machines', sets:3, reps:'10–12', note:'Per leg. Controlled depth.'},
-  {id:'mc29', name:'Abductor Machine',            cat:'Machines', sets:3, reps:'15–20', note:'Outer glutes/hips. Slow reps.'},
-  {id:'mc30', name:'Adductor Machine',            cat:'Machines', sets:3, reps:'15–20', note:'Inner thighs. Full range.'},
-  {id:'mc31', name:'Seated Calf Raise Machine',   cat:'Machines', sets:4, reps:'15–20', note:'Full stretch at bottom.'},
-  {id:'mc32', name:'Standing Calf Raise Machine', cat:'Machines', sets:4, reps:'12–15', note:'Pause at top and bottom.'},
-  {id:'mc33', name:'Glute Kickback Machine',      cat:'Machines', sets:3, reps:'12–15', note:'Per leg. Full hip extension.'},
-  {id:'mc34', name:'Hip Abduction Machine',       cat:'Machines', sets:3, reps:'15–20', note:'Glute medius. Controlled.'},
+  {id:'mc22', name:'Leg Press Machine',           cat:'Quads', sets:4, reps:'10–15', note:'Feet high = glutes. Feet low = quads.', machine:true},
+  {id:'mc23', name:'Leg Extension Machine',       cat:'Quads', sets:3, reps:'12–15', note:'Full extension. Squeeze at top.', machine:true},
+  {id:'mc24', name:'Seated Leg Curl Machine',     cat:'Hamstrings', sets:3, reps:'12–15', note:'Better stretch than lying.', machine:true},
+  {id:'mc25', name:'Lying Leg Curl Machine',      cat:'Hamstrings', sets:3, reps:'10–15', note:'Don\'t let hips rise.', machine:true},
+  {id:'mc26', name:'Hack Squat Machine',          cat:'Quads', sets:3, reps:'8–12',  note:'Feet together = more quad.', machine:true},
+  {id:'mc27', name:'Smith Machine Squat',         cat:'Quads', sets:4, reps:'8–12',  note:'Feet forward for safety.', machine:true},
+  {id:'mc28', name:'Smith Machine Lunge',         cat:'Quads', sets:3, reps:'10–12', note:'Per leg. Controlled depth.', machine:true},
+  {id:'mc29', name:'Abductor Machine',            cat:'Glutes', sets:3, reps:'15–20', note:'Outer glutes/hips. Slow reps.', machine:true},
+  {id:'mc30', name:'Adductor Machine',            cat:'Glutes', sets:3, reps:'15–20', note:'Inner thighs. Full range.', machine:true},
+  {id:'mc31', name:'Seated Calf Raise Machine',   cat:'Calves', sets:4, reps:'15–20', note:'Full stretch at bottom.', machine:true},
+  {id:'mc32', name:'Standing Calf Raise Machine', cat:'Calves', sets:4, reps:'12–15', note:'Pause at top and bottom.', machine:true},
+  {id:'mc33', name:'Glute Kickback Machine',      cat:'Glutes', sets:3, reps:'12–15', note:'Per leg. Full hip extension.', machine:true},
+  {id:'mc34', name:'Hip Abduction Machine',       cat:'Glutes', sets:3, reps:'15–20', note:'Glute medius. Controlled.', machine:true},
   // Core machines
-  {id:'mc35', name:'Ab Crunch Machine',           cat:'Machines', sets:3, reps:'15–20', note:'Add weight. Full crunch ROM.'},
-  {id:'mc36', name:'Rotary Torso Machine',        cat:'Machines', sets:3, reps:'12–15', note:'Per side. Oblique rotation.'},
-  {id:'mc37', name:'Cable Crunch (Kneeling)',     cat:'Machines', sets:3, reps:'15–20', note:'Rope at top. Crunch down.'},
+  {id:'mc35', name:'Ab Crunch Machine',           cat:'Core', sets:3, reps:'15–20', note:'Add weight. Full crunch ROM.', machine:true},
+  {id:'mc36', name:'Rotary Torso Machine',        cat:'Core', sets:3, reps:'12–15', note:'Per side. Oblique rotation.', machine:true},
+  {id:'mc37', name:'Cable Crunch (Kneeling)',     cat:'Core', sets:3, reps:'15–20', note:'Rope at top. Crunch down.', machine:true},
   // Cardio machines
-  {id:'mc38', name:'Treadmill',                   cat:'Machines', sets:1, reps:'20–45m',note:'Zone 2 pace or intervals.'},
-  {id:'mc39', name:'Elliptical',                  cat:'Machines', sets:1, reps:'20–40m',note:'Low impact. Steady state.'},
-  {id:'mc40', name:'Stairmaster / StepMill',      cat:'Machines', sets:1, reps:'20–30m',note:'Level 8–12. Glute activator.'},
-  {id:'mc41', name:'Stationary Bike',             cat:'Machines', sets:1, reps:'20–45m',note:'Upright or recumbent.'},
-  {id:'mc42', name:'Rowing Machine (Erg)',        cat:'Machines', sets:1, reps:'15–30m',note:'28 strokes/min for endurance.'},
-  {id:'mc43', name:'Assault / Air Bike',          cat:'Machines', sets:4, reps:'30–60s',note:'Max effort intervals. Brutal.'},
-  {id:'mc44', name:'Ski Erg',                     cat:'Machines', sets:4, reps:'30–60s',note:'Full body pull. Upper back.'},
-  {id:'mc45', name:'Jacob\'s Ladder',             cat:'Machines', sets:3, reps:'2–3m',  note:'Self-paced. Continuous climb.'},
+  {id:'mc38', name:'Treadmill',                   cat:'Cardio', sets:1, reps:'20–45m',note:'Zone 2 pace or intervals.', machine:true},
+  {id:'mc39', name:'Elliptical',                  cat:'Cardio', sets:1, reps:'20–40m',note:'Low impact. Steady state.', machine:true},
+  {id:'mc40', name:'Stairmaster / StepMill',      cat:'Cardio', sets:1, reps:'20–30m',note:'Level 8–12. Glute activator.', machine:true},
+  {id:'mc41', name:'Stationary Bike',             cat:'Cardio', sets:1, reps:'20–45m',note:'Upright or recumbent.', machine:true},
+  {id:'mc42', name:'Rowing Machine (Erg)',        cat:'Cardio', sets:1, reps:'15–30m',note:'28 strokes/min for endurance.', machine:true},
+  {id:'mc43', name:'Assault / Air Bike',          cat:'Cardio', sets:4, reps:'30–60s',note:'Max effort intervals. Brutal.', machine:true},
+  {id:'mc44', name:'Ski Erg',                     cat:'Cardio', sets:4, reps:'30–60s',note:'Full body pull. Upper back.', machine:true},
+  {id:'mc45', name:'Jacob\'s Ladder',             cat:'Full Body', sets:3, reps:'2–3m',  note:'Self-paced. Continuous climb.', machine:true},
+
+  // ── Expanded from free-exercise-db (public domain) ──
+  {id:'3_4_sit_up', name:'3/4 Sit-Up', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'ab_roller', name:'Ab Roller', cat:'Core', sets:3, reps:'8-12', note:'Other · abdominals'},
+  {id:'advanced_kettlebell_windmill', name:'Advanced Kettlebell Windmill', cat:'Core', sets:3, reps:'10-15', note:'Kettlebells · abdominals'},
+  {id:'air_bike', name:'Air Bike', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'alternate_hammer_curl', name:'Alternate Hammer Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'alternate_heel_touchers', name:'Alternate Heel Touchers', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'alternate_incline_dumbbell_curl', name:'Alternate Incline Dumbbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'alternate_leg_diagonal_bound', name:'Alternate Leg Diagonal Bound', cat:'Quads', sets:3, reps:'8-12', note:'Bodyweight · quadriceps'},
+  {id:'alternating_cable_shoulder_press', name:'Alternating Cable Shoulder Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'alternating_deltoid_raise', name:'Alternating Deltoid Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'alternating_floor_press', name:'Alternating Floor Press', cat:'Chest', sets:3, reps:'8-12', note:'Kettlebells · chest'},
+  {id:'alternating_hang_clean', name:'Alternating Hang Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'alternating_kettlebell_press', name:'Alternating Kettlebell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'alternating_kettlebell_row', name:'Alternating Kettlebell Row', cat:'Back', sets:3, reps:'10-15', note:'Kettlebells · middle back'},
+  {id:'alternating_renegade_row', name:'Alternating Renegade Row', cat:'Back', sets:3, reps:'8-12', note:'Kettlebells · middle back'},
+  {id:'anti_gravity_press', name:'Anti-Gravity Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'arnold_dumbbell_press', name:'Arnold Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'around_the_worlds', name:'Around The Worlds', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'atlas_stone_trainer', name:'Atlas Stone Trainer', cat:'Back', sets:4, reps:'30-60s', note:'Other · lower back'},
+  {id:'atlas_stones', name:'Atlas Stones', cat:'Back', sets:4, reps:'30-60s', note:'Other · lower back'},
+  {id:'axle_deadlift', name:'Axle Deadlift', cat:'Back', sets:4, reps:'30-60s', note:'Other · lower back'},
+  {id:'back_flyes_with_bands', name:'Back Flyes - With Bands', cat:'Shoulders', sets:3, reps:'8-12', note:'Bands · shoulders'},
+  {id:'backward_drag', name:'Backward Drag', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'backward_medicine_ball_throw', name:'Backward Medicine Ball Throw', cat:'Shoulders', sets:3, reps:'8-12', note:'Medicine ball · shoulders'},
+  {id:'balance_board', name:'Balance Board', cat:'Calves', sets:3, reps:'8-12', note:'Other · calves'},
+  {id:'ball_leg_curl', name:'Ball Leg Curl', cat:'Hamstrings', sets:3, reps:'10-15', note:'Exercise ball · hamstrings'},
+  {id:'band_assisted_pull_up', name:'Band Assisted Pull-Up', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'band_good_morning', name:'Band Good Morning', cat:'Hamstrings', sets:4, reps:'3-6', note:'Bands · hamstrings'},
+  {id:'band_good_morning_pull_through', name:'Band Good Morning (Pull Through)', cat:'Hamstrings', sets:4, reps:'3-6', note:'Bands · hamstrings'},
+  {id:'band_hip_adductions', name:'Band Hip Adductions', cat:'Glutes', sets:3, reps:'10-15', note:'Bands · adductors'},
+  {id:'band_pull_apart', name:'Band Pull Apart', cat:'Shoulders', sets:3, reps:'10-15', note:'Bands · shoulders'},
+  {id:'band_skull_crusher', name:'Band Skull Crusher', cat:'Triceps', sets:3, reps:'10-15', note:'Bands · triceps'},
+  {id:'barbell_ab_rollout', name:'Barbell Ab Rollout', cat:'Core', sets:4, reps:'5-8', note:'Barbell · abdominals'},
+  {id:'barbell_ab_rollout_on_knees', name:'Barbell Ab Rollout - On Knees', cat:'Core', sets:4, reps:'5-8', note:'Barbell · abdominals'},
+  {id:'barbell_bench_press_medium_grip', name:'Barbell Bench Press - Medium Grip', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'barbell_curls_lying_against_an_incline', name:'Barbell Curls Lying Against An Incline', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'barbell_deadlift', name:'Barbell Deadlift', cat:'Back', sets:4, reps:'5-8', note:'Barbell · lower back'},
+  {id:'barbell_full_squat', name:'Barbell Full Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_glute_bridge', name:'Barbell Glute Bridge', cat:'Glutes', sets:4, reps:'3-6', note:'Barbell · glutes'},
+  {id:'barbell_guillotine_bench_press', name:'Barbell Guillotine Bench Press', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'barbell_hack_squat', name:'Barbell Hack Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_hip_thrust', name:'Barbell Hip Thrust', cat:'Glutes', sets:4, reps:'3-6', note:'Barbell · glutes'},
+  {id:'barbell_incline_bench_press_medium_grip', name:'Barbell Incline Bench Press - Medium Grip', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'barbell_incline_shoulder_raise', name:'Barbell Incline Shoulder Raise', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'barbell_rear_delt_row', name:'Barbell Rear Delt Row', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'barbell_rollout_from_bench', name:'Barbell Rollout from Bench', cat:'Core', sets:4, reps:'5-8', note:'Barbell · abdominals'},
+  {id:'barbell_seated_calf_raise', name:'Barbell Seated Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Barbell · calves'},
+  {id:'barbell_shoulder_press', name:'Barbell Shoulder Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'barbell_shrug', name:'Barbell Shrug', cat:'Back', sets:3, reps:'10-15', note:'Barbell · traps'},
+  {id:'barbell_shrug_behind_the_back', name:'Barbell Shrug Behind The Back', cat:'Back', sets:3, reps:'10-15', note:'Barbell · traps'},
+  {id:'barbell_side_bend', name:'Barbell Side Bend', cat:'Core', sets:3, reps:'10-15', note:'Barbell · abdominals'},
+  {id:'barbell_side_split_squat', name:'Barbell Side Split Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_squat', name:'Barbell Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_squat_to_a_bench', name:'Barbell Squat To A Bench', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_step_ups', name:'Barbell Step Ups', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'barbell_walking_lunge', name:'Barbell Walking Lunge', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'battling_ropes', name:'Battling Ropes', cat:'Shoulders', sets:3, reps:'8-12', note:'Other · shoulders'},
+  {id:'bear_crawl_sled_drags', name:'Bear Crawl Sled Drags', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'bench_dips', name:'Bench Dips', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'bench_jump', name:'Bench Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'bench_press_powerlifting', name:'Bench Press - Powerlifting', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'bench_press_with_bands', name:'Bench Press - With Bands', cat:'Chest', sets:3, reps:'8-12', note:'Bands · chest'},
+  {id:'bench_press_with_chains', name:'Bench Press with Chains', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'bench_sprint', name:'Bench Sprint', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'bent_arm_barbell_pullover', name:'Bent-Arm Barbell Pullover', cat:'Back', sets:4, reps:'5-8', note:'Barbell · lats'},
+  {id:'bent_arm_dumbbell_pullover', name:'Bent-Arm Dumbbell Pullover', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'bent_knee_hip_raise', name:'Bent-Knee Hip Raise', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'bent_over_barbell_row', name:'Bent Over Barbell Row', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'bent_over_dumbbell_rear_delt_raise_with_head_on_bench', name:'Bent Over Dumbbell Rear Delt Raise With Head On Bench', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'bent_over_low_pulley_side_lateral', name:'Bent Over Low-Pulley Side Lateral', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'bent_over_one_arm_long_bar_row', name:'Bent Over One-Arm Long Bar Row', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'bent_over_two_arm_long_bar_row', name:'Bent Over Two-Arm Long Bar Row', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'bent_over_two_dumbbell_row', name:'Bent Over Two-Dumbbell Row', cat:'Back', sets:3, reps:'8-12', note:'Dumbbell · middle back'},
+  {id:'bent_over_two_dumbbell_row_with_palms_in', name:'Bent Over Two-Dumbbell Row With Palms In', cat:'Back', sets:3, reps:'8-12', note:'Dumbbell · middle back'},
+  {id:'bent_press', name:'Bent Press', cat:'Core', sets:3, reps:'8-12', note:'Kettlebells · abdominals'},
+  {id:'bicycling', name:'Bicycling', cat:'Cardio', sets:1, reps:'15-30m', note:'Other · quadriceps'},
+  {id:'bicycling_stationary', name:'Bicycling, Stationary', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'board_press', name:'Board Press', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'body_up', name:'Body-Up', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'body_tricep_press', name:'Body Tricep Press', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'bodyweight_flyes', name:'Bodyweight Flyes', cat:'Chest', sets:3, reps:'10-15', note:'E-z curl bar · chest'},
+  {id:'bodyweight_mid_row', name:'Bodyweight Mid Row', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'bodyweight_squat', name:'Bodyweight Squat', cat:'Quads', sets:3, reps:'10-15', note:'Body only · quadriceps'},
+  {id:'bodyweight_walking_lunge', name:'Bodyweight Walking Lunge', cat:'Quads', sets:3, reps:'8-12', note:'Bodyweight · quadriceps'},
+  {id:'bosu_ball_cable_crunch_with_side_bends', name:'Bosu Ball Cable Crunch With Side Bends', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'bottoms_up_clean_from_the_hang_position', name:'Bottoms-Up Clean From The Hang Position', cat:'Biceps', sets:3, reps:'8-12', note:'Kettlebells · forearms'},
+  {id:'bottoms_up', name:'Bottoms Up', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'box_jump_multiple_response', name:'Box Jump (Multiple Response)', cat:'Hamstrings', sets:3, reps:'8-12', note:'Other · hamstrings'},
+  {id:'box_skip', name:'Box Skip', cat:'Hamstrings', sets:3, reps:'8-12', note:'Other · hamstrings'},
+  {id:'box_squat', name:'Box Squat', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'box_squat_with_bands', name:'Box Squat with Bands', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'box_squat_with_chains', name:'Box Squat with Chains', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'bradford_rocky_presses', name:'Bradford/Rocky Presses', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'butt_ups', name:'Butt-Ups', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'butt_lift_bridge', name:'Butt Lift (Bridge)', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'butterfly', name:'Butterfly', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'cable_chest_press', name:'Cable Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'cable_crossover', name:'Cable Crossover', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'cable_deadlifts', name:'Cable Deadlifts', cat:'Quads', sets:3, reps:'10-15', note:'Cable · quadriceps', machine:true},
+  {id:'cable_hammer_curls_rope_attachment', name:'Cable Hammer Curls - Rope Attachment', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'cable_hip_adduction', name:'Cable Hip Adduction', cat:'Quads', sets:3, reps:'10-15', note:'Cable · quadriceps', machine:true},
+  {id:'cable_incline_pushdown', name:'Cable Incline Pushdown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'cable_incline_triceps_extension', name:'Cable Incline Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'cable_internal_rotation', name:'Cable Internal Rotation', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'cable_iron_cross', name:'Cable Iron Cross', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'cable_judo_flip', name:'Cable Judo Flip', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'cable_lying_triceps_extension', name:'Cable Lying Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'cable_one_arm_tricep_extension', name:'Cable One Arm Tricep Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'cable_preacher_curl', name:'Cable Preacher Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'cable_rear_delt_fly', name:'Cable Rear Delt Fly', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'cable_reverse_crunch', name:'Cable Reverse Crunch', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'cable_rope_overhead_triceps_extension', name:'Cable Rope Overhead Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'cable_rope_rear_delt_rows', name:'Cable Rope Rear-Delt Rows', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'cable_russian_twists', name:'Cable Russian Twists', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'cable_seated_crunch', name:'Cable Seated Crunch', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'cable_seated_lateral_raise', name:'Cable Seated Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'cable_shoulder_press', name:'Cable Shoulder Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'cable_shrugs', name:'Cable Shrugs', cat:'Back', sets:3, reps:'10-15', note:'Cable · traps', machine:true},
+  {id:'cable_wrist_curl', name:'Cable Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · forearms', machine:true},
+  {id:'calf_machine_shoulder_shrug', name:'Calf-Machine Shoulder Shrug', cat:'Back', sets:3, reps:'10-15', note:'Machine · traps', machine:true},
+  {id:'calf_press', name:'Calf Press', cat:'Calves', sets:3, reps:'10-15', note:'Machine · calves', machine:true},
+  {id:'calf_press_on_the_leg_press_machine', name:'Calf Press On The Leg Press Machine', cat:'Calves', sets:3, reps:'10-15', note:'Machine · calves', machine:true},
+  {id:'calf_raise_on_a_dumbbell', name:'Calf Raise On A Dumbbell', cat:'Calves', sets:3, reps:'10-15', note:'Dumbbell · calves'},
+  {id:'calf_raises_with_bands', name:'Calf Raises - With Bands', cat:'Calves', sets:3, reps:'10-15', note:'Bands · calves'},
+  {id:'car_deadlift', name:'Car Deadlift', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'car_drivers', name:'Car Drivers', cat:'Shoulders', sets:3, reps:'10-15', note:'Barbell · shoulders'},
+  {id:'carioca_quick_step', name:'Carioca Quick Step', cat:'Glutes', sets:3, reps:'8-12', note:'Bodyweight · adductors'},
+  {id:'catch_and_overhead_throw', name:'Catch and Overhead Throw', cat:'Back', sets:3, reps:'8-12', note:'Medicine ball · lats'},
+  {id:'chain_handle_extension', name:'Chain Handle Extension', cat:'Triceps', sets:4, reps:'3-6', note:'Other · triceps'},
+  {id:'chain_press', name:'Chain Press', cat:'Chest', sets:4, reps:'3-6', note:'Other · chest'},
+  {id:'chair_squat', name:'Chair Squat', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'chest_push_from_3_point_stance', name:'Chest Push from 3 point stance', cat:'Chest', sets:3, reps:'8-12', note:'Medicine ball · chest'},
+  {id:'chest_push_multiple_response', name:'Chest Push (multiple response)', cat:'Chest', sets:3, reps:'8-12', note:'Medicine ball · chest'},
+  {id:'chest_push_single_response', name:'Chest Push (single response)', cat:'Chest', sets:3, reps:'8-12', note:'Medicine ball · chest'},
+  {id:'chest_push_with_run_release', name:'Chest Push with Run Release', cat:'Chest', sets:3, reps:'8-12', note:'Medicine ball · chest'},
+  {id:'chin_up', name:'Chin-Up', cat:'Back', sets:3, reps:'10-15', note:'Body only · lats'},
+  {id:'circus_bell', name:'Circus Bell', cat:'Shoulders', sets:4, reps:'30-60s', note:'Other · shoulders'},
+  {id:'clean', name:'Clean', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'clean_deadlift', name:'Clean Deadlift', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'clean_shrug', name:'Clean Shrug', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · traps'},
+  {id:'clean_and_press', name:'Clean and Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'clean_from_blocks', name:'Clean from Blocks', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'clock_push_up', name:'Clock Push-Up', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'close_grip_barbell_bench_press', name:'Close-Grip Barbell Bench Press', cat:'Triceps', sets:4, reps:'5-8', note:'Barbell · triceps'},
+  {id:'close_grip_dumbbell_press', name:'Close-Grip Dumbbell Press', cat:'Triceps', sets:3, reps:'8-12', note:'Dumbbell · triceps'},
+  {id:'close_grip_ez_bar_curl_with_band', name:'Close-Grip EZ-Bar Curl with Band', cat:'Biceps', sets:3, reps:'10-15', note:'E-z curl bar · biceps'},
+  {id:'close_grip_ez_bar_press', name:'Close-Grip EZ-Bar Press', cat:'Triceps', sets:3, reps:'8-12', note:'E-z curl bar · triceps'},
+  {id:'close_grip_ez_bar_curl', name:'Close-Grip EZ Bar Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'close_grip_front_lat_pulldown', name:'Close-Grip Front Lat Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'close_grip_push_up_off_of_a_dumbbell', name:'Close-Grip Push-Up off of a Dumbbell', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'close_grip_standing_barbell_curl', name:'Close-Grip Standing Barbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'cocoons', name:'Cocoons', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'conan_s_wheel', name:'Conan\'s Wheel', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'concentration_curls', name:'Concentration Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'cross_body_crunch', name:'Cross-Body Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'cross_body_hammer_curl', name:'Cross Body Hammer Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'cross_over_with_bands', name:'Cross Over - With Bands', cat:'Chest', sets:3, reps:'8-12', note:'Bands · chest'},
+  {id:'crucifix', name:'Crucifix', cat:'Shoulders', sets:4, reps:'30-60s', note:'Other · shoulders'},
+  {id:'crunch_hands_overhead', name:'Crunch - Hands Overhead', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'crunch_legs_on_exercise_ball', name:'Crunch - Legs On Exercise Ball', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'crunches', name:'Crunches', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'cuban_press', name:'Cuban Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'deadlift_with_bands', name:'Deadlift with Bands', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'deadlift_with_chains', name:'Deadlift with Chains', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'decline_barbell_bench_press', name:'Decline Barbell Bench Press', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'decline_close_grip_bench_to_skull_crusher', name:'Decline Close-Grip Bench To Skull Crusher', cat:'Triceps', sets:4, reps:'5-8', note:'Barbell · triceps'},
+  {id:'decline_crunch', name:'Decline Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'decline_dumbbell_bench_press', name:'Decline Dumbbell Bench Press', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'decline_dumbbell_flyes', name:'Decline Dumbbell Flyes', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'decline_dumbbell_triceps_extension', name:'Decline Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'decline_ez_bar_triceps_extension', name:'Decline EZ Bar Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Barbell · triceps'},
+  {id:'decline_oblique_crunch', name:'Decline Oblique Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'decline_push_up', name:'Decline Push-Up', cat:'Chest', sets:3, reps:'8-12', note:'Bodyweight · chest'},
+  {id:'decline_reverse_crunch', name:'Decline Reverse Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'decline_smith_press', name:'Decline Smith Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'deficit_deadlift', name:'Deficit Deadlift', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'depth_jump_leap', name:'Depth Jump Leap', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'dip_machine', name:'Dip Machine', cat:'Triceps', sets:3, reps:'10-15', note:'Machine · triceps', machine:true},
+  {id:'dips_chest_version', name:'Dips - Chest Version', cat:'Chest', sets:3, reps:'8-12', note:'Other · chest'},
+  {id:'dips_triceps_version', name:'Dips - Triceps Version', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'donkey_calf_raises', name:'Donkey Calf Raises', cat:'Calves', sets:3, reps:'10-15', note:'Other · calves'},
+  {id:'double_kettlebell_alternating_hang_clean', name:'Double Kettlebell Alternating Hang Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'double_kettlebell_jerk', name:'Double Kettlebell Jerk', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'double_kettlebell_push_press', name:'Double Kettlebell Push Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'double_kettlebell_snatch', name:'Double Kettlebell Snatch', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'double_kettlebell_windmill', name:'Double Kettlebell Windmill', cat:'Core', sets:3, reps:'8-12', note:'Kettlebells · abdominals'},
+  {id:'double_leg_butt_kick', name:'Double Leg Butt Kick', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'downward_facing_balance', name:'Downward Facing Balance', cat:'Glutes', sets:3, reps:'10-15', note:'Exercise ball · glutes'},
+  {id:'drag_curl', name:'Drag Curl', cat:'Biceps', sets:4, reps:'5-8', note:'Barbell · biceps'},
+  {id:'drop_push', name:'Drop Push', cat:'Chest', sets:3, reps:'8-12', note:'Other · chest'},
+  {id:'dumbbell_alternate_bicep_curl', name:'Dumbbell Alternate Bicep Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'dumbbell_bench_press_with_neutral_grip', name:'Dumbbell Bench Press with Neutral Grip', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'dumbbell_bicep_curl', name:'Dumbbell Bicep Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'dumbbell_clean', name:'Dumbbell Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Dumbbell · hamstrings'},
+  {id:'dumbbell_floor_press', name:'Dumbbell Floor Press', cat:'Triceps', sets:4, reps:'3-6', note:'Dumbbell · triceps'},
+  {id:'dumbbell_flyes', name:'Dumbbell Flyes', cat:'Chest', sets:3, reps:'10-15', note:'Dumbbell · chest'},
+  {id:'dumbbell_incline_row', name:'Dumbbell Incline Row', cat:'Back', sets:3, reps:'8-12', note:'Dumbbell · middle back'},
+  {id:'dumbbell_incline_shoulder_raise', name:'Dumbbell Incline Shoulder Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_lunges', name:'Dumbbell Lunges', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_lying_one_arm_rear_lateral_raise', name:'Dumbbell Lying One-Arm Rear Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_lying_pronation', name:'Dumbbell Lying Pronation', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'dumbbell_lying_rear_lateral_raise', name:'Dumbbell Lying Rear Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_lying_supination', name:'Dumbbell Lying Supination', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'dumbbell_one_arm_shoulder_press', name:'Dumbbell One-Arm Shoulder Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_one_arm_triceps_extension', name:'Dumbbell One-Arm Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'dumbbell_one_arm_upright_row', name:'Dumbbell One-Arm Upright Row', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_prone_incline_curl', name:'Dumbbell Prone Incline Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'dumbbell_raise', name:'Dumbbell Raise', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_rear_lunge', name:'Dumbbell Rear Lunge', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_scaption', name:'Dumbbell Scaption', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'dumbbell_seated_box_jump', name:'Dumbbell Seated Box Jump', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_seated_one_leg_calf_raise', name:'Dumbbell Seated One-Leg Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Dumbbell · calves'},
+  {id:'dumbbell_shrug', name:'Dumbbell Shrug', cat:'Back', sets:3, reps:'10-15', note:'Dumbbell · traps'},
+  {id:'dumbbell_side_bend', name:'Dumbbell Side Bend', cat:'Core', sets:3, reps:'10-15', note:'Dumbbell · abdominals'},
+  {id:'dumbbell_squat', name:'Dumbbell Squat', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_squat_to_a_bench', name:'Dumbbell Squat To A Bench', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_step_ups', name:'Dumbbell Step Ups', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'dumbbell_tricep_extension_pronated_grip', name:'Dumbbell Tricep Extension -Pronated Grip', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'ez_bar_skullcrusher', name:'EZ-Bar Skullcrusher', cat:'Triceps', sets:3, reps:'10-15', note:'E-z curl bar · triceps'},
+  {id:'elbow_to_knee', name:'Elbow to Knee', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'elevated_back_lunge', name:'Elevated Back Lunge', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'elevated_cable_rows', name:'Elevated Cable Rows', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'elliptical_trainer', name:'Elliptical Trainer', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'exercise_ball_crunch', name:'Exercise Ball Crunch', cat:'Core', sets:3, reps:'10-15', note:'Exercise ball · abdominals'},
+  {id:'exercise_ball_pull_in', name:'Exercise Ball Pull-In', cat:'Core', sets:3, reps:'8-12', note:'Exercise ball · abdominals'},
+  {id:'extended_range_one_arm_kettlebell_floor_press', name:'Extended Range One-Arm Kettlebell Floor Press', cat:'Chest', sets:3, reps:'8-12', note:'Kettlebells · chest'},
+  {id:'external_rotation', name:'External Rotation', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'external_rotation_with_band', name:'External Rotation with Band', cat:'Shoulders', sets:3, reps:'8-12', note:'Bands · shoulders'},
+  {id:'external_rotation_with_cable', name:'External Rotation with Cable', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'face_pull', name:'Face Pull', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'farmer_s_walk', name:'Farmer\'s Walk', cat:'Biceps', sets:4, reps:'30-60s', note:'Other · forearms'},
+  {id:'fast_skipping', name:'Fast Skipping', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'finger_curls', name:'Finger Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'flat_bench_cable_flyes', name:'Flat Bench Cable Flyes', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'flat_bench_leg_pull_in', name:'Flat Bench Leg Pull-In', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'flat_bench_lying_leg_raise', name:'Flat Bench Lying Leg Raise', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'flexor_incline_dumbbell_curls', name:'Flexor Incline Dumbbell Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'floor_glute_ham_raise', name:'Floor Glute-Ham Raise', cat:'Hamstrings', sets:3, reps:'10-15', note:'Bodyweight · hamstrings'},
+  {id:'floor_press', name:'Floor Press', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'floor_press_with_chains', name:'Floor Press with Chains', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'flutter_kicks', name:'Flutter Kicks', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'forward_drag_with_press', name:'Forward Drag with Press', cat:'Chest', sets:4, reps:'30-60s', note:'Other · chest'},
+  {id:'frankenstein_squat', name:'Frankenstein Squat', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'freehand_jump_squat', name:'Freehand Jump Squat', cat:'Quads', sets:3, reps:'10-15', note:'Body only · quadriceps'},
+  {id:'frog_sit_ups', name:'Frog Sit-Ups', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'front_barbell_squat', name:'Front Barbell Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'front_barbell_squat_to_a_bench', name:'Front Barbell Squat To A Bench', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'front_box_jump', name:'Front Box Jump', cat:'Hamstrings', sets:3, reps:'8-12', note:'Other · hamstrings'},
+  {id:'front_cable_raise', name:'Front Cable Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'front_cone_hops_or_hurdle_hops', name:'Front Cone Hops (or hurdle hops)', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'front_dumbbell_raise', name:'Front Dumbbell Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'front_incline_dumbbell_raise', name:'Front Incline Dumbbell Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'front_plate_raise', name:'Front Plate Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Other · shoulders'},
+  {id:'front_raise_and_pullover', name:'Front Raise And Pullover', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'front_squat_clean_grip', name:'Front Squat (Clean Grip)', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'front_squats_with_two_kettlebells', name:'Front Squats With Two Kettlebells', cat:'Quads', sets:3, reps:'8-12', note:'Kettlebells · quadriceps'},
+  {id:'front_two_dumbbell_raise', name:'Front Two-Dumbbell Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'full_range_of_motion_lat_pulldown', name:'Full Range-Of-Motion Lat Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'gironda_sternum_chins', name:'Gironda Sternum Chins', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'glute_ham_raise', name:'Glute Ham Raise', cat:'Hamstrings', sets:4, reps:'3-6', note:'Machine · hamstrings', machine:true},
+  {id:'glute_kickback', name:'Glute Kickback', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'good_morning_off_pins', name:'Good Morning off Pins', cat:'Hamstrings', sets:4, reps:'3-6', note:'Barbell · hamstrings'},
+  {id:'gorilla_chin_crunch', name:'Gorilla Chin/Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'hammer_grip_incline_db_bench_press', name:'Hammer Grip Incline DB Bench Press', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'handstand_push_ups', name:'Handstand Push-Ups', cat:'Shoulders', sets:3, reps:'10-15', note:'Body only · shoulders'},
+  {id:'hang_clean', name:'Hang Clean', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'hang_clean_below_the_knees', name:'Hang Clean - Below the Knees', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'hang_snatch', name:'Hang Snatch', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'hang_snatch_below_knees', name:'Hang Snatch - Below Knees', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'hanging_bar_good_morning', name:'Hanging Bar Good Morning', cat:'Hamstrings', sets:4, reps:'3-6', note:'Barbell · hamstrings'},
+  {id:'hanging_pike', name:'Hanging Pike', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'heaving_snatch_balance', name:'Heaving Snatch Balance', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'heavy_bag_thrust', name:'Heavy Bag Thrust', cat:'Chest', sets:3, reps:'8-12', note:'Other · chest'},
+  {id:'high_cable_curls', name:'High Cable Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'hip_extension_with_bands', name:'Hip Extension with Bands', cat:'Glutes', sets:3, reps:'8-12', note:'Bands · glutes'},
+  {id:'hip_flexion_with_band', name:'Hip Flexion with Band', cat:'Quads', sets:3, reps:'8-12', note:'Bands · quadriceps'},
+  {id:'hip_lift_with_band', name:'Hip Lift with Band', cat:'Glutes', sets:4, reps:'3-6', note:'Bands · glutes'},
+  {id:'hurdle_hops', name:'Hurdle Hops', cat:'Hamstrings', sets:3, reps:'8-12', note:'Other · hamstrings'},
+  {id:'hyperextensions_back_extensions', name:'Hyperextensions (Back Extensions)', cat:'Back', sets:3, reps:'10-15', note:'Other · lower back'},
+  {id:'hyperextensions_with_no_hyperextension_bench', name:'Hyperextensions With No Hyperextension Bench', cat:'Back', sets:3, reps:'10-15', note:'Body only · lower back'},
+  {id:'incline_barbell_triceps_extension', name:'Incline Barbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Barbell · triceps'},
+  {id:'incline_bench_pull', name:'Incline Bench Pull', cat:'Back', sets:3, reps:'10-15', note:'Barbell · middle back'},
+  {id:'incline_cable_chest_press', name:'Incline Cable Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'incline_cable_flye', name:'Incline Cable Flye', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'incline_dumbbell_bench_with_palms_facing_in', name:'Incline Dumbbell Bench With Palms Facing In', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'incline_dumbbell_curl', name:'Incline Dumbbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'incline_dumbbell_flyes', name:'Incline Dumbbell Flyes', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'incline_dumbbell_flyes_with_a_twist', name:'Incline Dumbbell Flyes - With A Twist', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'incline_dumbbell_press', name:'Incline Dumbbell Press', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'incline_hammer_curls', name:'Incline Hammer Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'incline_inner_biceps_curl', name:'Incline Inner Biceps Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'incline_push_up', name:'Incline Push-Up', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'incline_push_up_close_grip', name:'Incline Push-Up Close-Grip', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'incline_push_up_depth_jump', name:'Incline Push-Up Depth Jump', cat:'Chest', sets:3, reps:'8-12', note:'Other · chest'},
+  {id:'incline_push_up_medium', name:'Incline Push-Up Medium', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'incline_push_up_reverse_grip', name:'Incline Push-Up Reverse Grip', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'incline_push_up_wide', name:'Incline Push-Up Wide', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'internal_rotation_with_band', name:'Internal Rotation with Band', cat:'Shoulders', sets:3, reps:'10-15', note:'Bands · shoulders'},
+  {id:'inverted_row', name:'Inverted Row', cat:'Back', sets:3, reps:'8-12', note:'Bodyweight · middle back'},
+  {id:'inverted_row_with_straps', name:'Inverted Row with Straps', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'iron_cross', name:'Iron Cross', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'isometric_chest_squeezes', name:'Isometric Chest Squeezes', cat:'Chest', sets:3, reps:'8-12', note:'Body only · chest'},
+  {id:'isometric_neck_exercise_front_and_back', name:'Isometric Neck Exercise - Front And Back', cat:'Back', sets:3, reps:'10-15', note:'Body only · neck'},
+  {id:'isometric_neck_exercise_sides', name:'Isometric Neck Exercise - Sides', cat:'Back', sets:3, reps:'10-15', note:'Body only · neck'},
+  {id:'isometric_wipers', name:'Isometric Wipers', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'jackknife_sit_up', name:'Jackknife Sit-Up', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'janda_sit_up', name:'Janda Sit-Up', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'jefferson_squats', name:'Jefferson Squats', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'jerk_balance', name:'Jerk Balance', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · shoulders'},
+  {id:'jerk_dip_squat', name:'Jerk Dip Squat', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'jogging_treadmill', name:'Jogging, Treadmill', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'keg_load', name:'Keg Load', cat:'Back', sets:4, reps:'30-60s', note:'Other · lower back'},
+  {id:'kettlebell_arnold_press', name:'Kettlebell Arnold Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_dead_clean', name:'Kettlebell Dead Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'kettlebell_figure_8', name:'Kettlebell Figure 8', cat:'Core', sets:3, reps:'8-12', note:'Kettlebells · abdominals'},
+  {id:'kettlebell_hang_clean', name:'Kettlebell Hang Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'kettlebell_one_legged_deadlift', name:'Kettlebell One-Legged Deadlift', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'kettlebell_pass_between_the_legs', name:'Kettlebell Pass Between The Legs', cat:'Core', sets:3, reps:'8-12', note:'Kettlebells · abdominals'},
+  {id:'kettlebell_pirate_ships', name:'Kettlebell Pirate Ships', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_pistol_squat', name:'Kettlebell Pistol Squat', cat:'Quads', sets:3, reps:'8-12', note:'Kettlebells · quadriceps'},
+  {id:'kettlebell_seated_press', name:'Kettlebell Seated Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_seesaw_press', name:'Kettlebell Seesaw Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_sumo_high_pull', name:'Kettlebell Sumo High Pull', cat:'Back', sets:3, reps:'8-12', note:'Kettlebells · traps'},
+  {id:'kettlebell_thruster', name:'Kettlebell Thruster', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_turkish_get_up_lunge_style', name:'Kettlebell Turkish Get-Up (Lunge style)', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_turkish_get_up_squat_style', name:'Kettlebell Turkish Get-Up (Squat style)', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'kettlebell_windmill', name:'Kettlebell Windmill', cat:'Core', sets:3, reps:'8-12', note:'Kettlebells · abdominals'},
+  {id:'kipping_muscle_up', name:'Kipping Muscle Up', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'knee_hip_raise_on_parallel_bars', name:'Knee/Hip Raise On Parallel Bars', cat:'Core', sets:3, reps:'10-15', note:'Other · abdominals'},
+  {id:'knee_tuck_jump', name:'Knee Tuck Jump', cat:'Hamstrings', sets:3, reps:'8-12', note:'Body only · hamstrings'},
+  {id:'kneeling_arm_drill', name:'Kneeling Arm Drill', cat:'Shoulders', sets:3, reps:'8-12', note:'Bodyweight · shoulders'},
+  {id:'kneeling_cable_crunch_with_alternating_oblique_twists', name:'Kneeling Cable Crunch With Alternating Oblique Twists', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'kneeling_cable_triceps_extension', name:'Kneeling Cable Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'kneeling_high_pulley_row', name:'Kneeling High Pulley Row', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'kneeling_jump_squat', name:'Kneeling Jump Squat', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · glutes'},
+  {id:'kneeling_single_arm_high_pulley_row', name:'Kneeling Single-Arm High Pulley Row', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'kneeling_squat', name:'Kneeling Squat', cat:'Glutes', sets:4, reps:'3-6', note:'Barbell · glutes'},
+  {id:'landmine_180_s', name:'Landmine 180\'s', cat:'Core', sets:4, reps:'5-8', note:'Barbell · abdominals'},
+  {id:'landmine_linear_jammer', name:'Landmine Linear Jammer', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'lateral_bound', name:'Lateral Bound', cat:'Glutes', sets:3, reps:'8-12', note:'Body only · adductors'},
+  {id:'lateral_box_jump', name:'Lateral Box Jump', cat:'Glutes', sets:3, reps:'8-12', note:'Other · adductors'},
+  {id:'lateral_cone_hops', name:'Lateral Cone Hops', cat:'Glutes', sets:3, reps:'8-12', note:'Other · adductors'},
+  {id:'lateral_raise_with_bands', name:'Lateral Raise - With Bands', cat:'Shoulders', sets:3, reps:'10-15', note:'Bands · shoulders'},
+  {id:'leg_over_floor_press', name:'Leg-Over Floor Press', cat:'Chest', sets:3, reps:'8-12', note:'Kettlebells · chest'},
+  {id:'leg_extensions', name:'Leg Extensions', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'leg_lift', name:'Leg Lift', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'leg_pull_in', name:'Leg Pull-In', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'leverage_chest_press', name:'Leverage Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'leverage_deadlift', name:'Leverage Deadlift', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'leverage_decline_chest_press', name:'Leverage Decline Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'leverage_high_row', name:'Leverage High Row', cat:'Back', sets:3, reps:'10-15', note:'Machine · middle back', machine:true},
+  {id:'leverage_incline_chest_press', name:'Leverage Incline Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'leverage_iso_row', name:'Leverage Iso Row', cat:'Back', sets:3, reps:'10-15', note:'Machine · lats', machine:true},
+  {id:'leverage_shoulder_press', name:'Leverage Shoulder Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Machine · shoulders', machine:true},
+  {id:'leverage_shrug', name:'Leverage Shrug', cat:'Back', sets:3, reps:'10-15', note:'Machine · traps', machine:true},
+  {id:'linear_3_part_start_technique', name:'Linear 3-Part Start Technique', cat:'Hamstrings', sets:3, reps:'8-12', note:'Bodyweight · hamstrings'},
+  {id:'linear_acceleration_wall_drill', name:'Linear Acceleration Wall Drill', cat:'Hamstrings', sets:3, reps:'8-12', note:'Bodyweight · hamstrings'},
+  {id:'linear_depth_jump', name:'Linear Depth Jump', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'log_lift', name:'Log Lift', cat:'Shoulders', sets:4, reps:'30-60s', note:'Other · shoulders'},
+  {id:'london_bridges', name:'London Bridges', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'low_cable_crossover', name:'Low Cable Crossover', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'low_cable_triceps_extension', name:'Low Cable Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'low_pulley_row_to_neck', name:'Low Pulley Row To Neck', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'lunge_pass_through', name:'Lunge Pass Through', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'lunge_sprint', name:'Lunge Sprint', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'lying_cable_curl', name:'Lying Cable Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'lying_cambered_barbell_row', name:'Lying Cambered Barbell Row', cat:'Back', sets:3, reps:'10-15', note:'Barbell · middle back'},
+  {id:'lying_close_grip_bar_curl_on_high_pulley', name:'Lying Close-Grip Bar Curl On High Pulley', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'lying_close_grip_barbell_triceps_extension_behind_the_head', name:'Lying Close-Grip Barbell Triceps Extension Behind The Head', cat:'Triceps', sets:3, reps:'10-15', note:'Barbell · triceps'},
+  {id:'lying_close_grip_barbell_triceps_press_to_chin', name:'Lying Close-Grip Barbell Triceps Press To Chin', cat:'Triceps', sets:3, reps:'10-15', note:'E-z curl bar · triceps'},
+  {id:'lying_dumbbell_tricep_extension', name:'Lying Dumbbell Tricep Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'lying_face_down_plate_neck_resistance', name:'Lying Face Down Plate Neck Resistance', cat:'Back', sets:3, reps:'10-15', note:'Other · neck'},
+  {id:'lying_face_up_plate_neck_resistance', name:'Lying Face Up Plate Neck Resistance', cat:'Back', sets:3, reps:'10-15', note:'Other · neck'},
+  {id:'lying_high_bench_barbell_curl', name:'Lying High Bench Barbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'lying_leg_curls', name:'Lying Leg Curls', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'lying_machine_squat', name:'Lying Machine Squat', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'lying_one_arm_lateral_raise', name:'Lying One-Arm Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'lying_rear_delt_raise', name:'Lying Rear Delt Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'lying_supine_dumbbell_curl', name:'Lying Supine Dumbbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'lying_t_bar_row', name:'Lying T-Bar Row', cat:'Back', sets:3, reps:'10-15', note:'Machine · middle back', machine:true},
+  {id:'lying_triceps_press', name:'Lying Triceps Press', cat:'Triceps', sets:3, reps:'10-15', note:'E-z curl bar · triceps'},
+  {id:'machine_bench_press', name:'Machine Bench Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'machine_bicep_curl', name:'Machine Bicep Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Machine · biceps', machine:true},
+  {id:'machine_preacher_curls', name:'Machine Preacher Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Machine · biceps', machine:true},
+  {id:'machine_shoulder_military_press', name:'Machine Shoulder (Military) Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Machine · shoulders', machine:true},
+  {id:'machine_triceps_extension', name:'Machine Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Machine · triceps', machine:true},
+  {id:'medicine_ball_chest_pass', name:'Medicine Ball Chest Pass', cat:'Chest', sets:3, reps:'8-12', note:'Medicine ball · chest'},
+  {id:'medicine_ball_full_twist', name:'Medicine Ball Full Twist', cat:'Core', sets:3, reps:'8-12', note:'Medicine ball · abdominals'},
+  {id:'medicine_ball_scoop_throw', name:'Medicine Ball Scoop Throw', cat:'Shoulders', sets:3, reps:'8-12', note:'Medicine ball · shoulders'},
+  {id:'middle_back_shrug', name:'Middle Back Shrug', cat:'Back', sets:3, reps:'10-15', note:'Dumbbell · middle back'},
+  {id:'mixed_grip_chin', name:'Mixed Grip Chin', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'monster_walk', name:'Monster Walk', cat:'Glutes', sets:3, reps:'8-12', note:'Bands · abductors'},
+  {id:'mountain_climbers', name:'Mountain Climbers', cat:'Quads', sets:3, reps:'8-12', note:'Bodyweight · quadriceps'},
+  {id:'moving_claw_series', name:'Moving Claw Series', cat:'Hamstrings', sets:3, reps:'8-12', note:'Bodyweight · hamstrings'},
+  {id:'muscle_snatch', name:'Muscle Snatch', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'muscle_up', name:'Muscle Up', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'narrow_stance_hack_squats', name:'Narrow Stance Hack Squats', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'narrow_stance_leg_press', name:'Narrow Stance Leg Press', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'narrow_stance_squats', name:'Narrow Stance Squats', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'natural_glute_ham_raise', name:'Natural Glute Ham Raise', cat:'Hamstrings', sets:3, reps:'10-15', note:'Body only · hamstrings'},
+  {id:'neck_press', name:'Neck Press', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'oblique_crunches', name:'Oblique Crunches', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'oblique_crunches_on_the_floor', name:'Oblique Crunches - On The Floor', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'olympic_squat', name:'Olympic Squat', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'one_arm_dumbbell_row', name:'One-Arm Dumbbell Row', cat:'Back', sets:3, reps:'8-12', note:'Dumbbell · middle back'},
+  {id:'one_arm_flat_bench_dumbbell_flye', name:'One-Arm Flat Bench Dumbbell Flye', cat:'Chest', sets:3, reps:'10-15', note:'Dumbbell · chest'},
+  {id:'one_arm_high_pulley_cable_side_bends', name:'One-Arm High-Pulley Cable Side Bends', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'one_arm_incline_lateral_raise', name:'One-Arm Incline Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'one_arm_kettlebell_clean', name:'One-Arm Kettlebell Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'one_arm_kettlebell_clean_and_jerk', name:'One-Arm Kettlebell Clean and Jerk', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_floor_press', name:'One-Arm Kettlebell Floor Press', cat:'Chest', sets:3, reps:'8-12', note:'Kettlebells · chest'},
+  {id:'one_arm_kettlebell_jerk', name:'One-Arm Kettlebell Jerk', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_military_press_to_the_side', name:'One-Arm Kettlebell Military Press To The Side', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_para_press', name:'One-Arm Kettlebell Para Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_push_press', name:'One-Arm Kettlebell Push Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_row', name:'One-Arm Kettlebell Row', cat:'Back', sets:3, reps:'8-12', note:'Kettlebells · middle back'},
+  {id:'one_arm_kettlebell_snatch', name:'One-Arm Kettlebell Snatch', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_split_jerk', name:'One-Arm Kettlebell Split Jerk', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_split_snatch', name:'One-Arm Kettlebell Split Snatch', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'one_arm_kettlebell_swings', name:'One-Arm Kettlebell Swings', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'one_arm_long_bar_row', name:'One-Arm Long Bar Row', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'one_arm_medicine_ball_slam', name:'One-Arm Medicine Ball Slam', cat:'Core', sets:3, reps:'8-12', note:'Medicine ball · abdominals'},
+  {id:'one_arm_open_palm_kettlebell_clean', name:'One-Arm Open Palm Kettlebell Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'one_arm_overhead_kettlebell_squats', name:'One-Arm Overhead Kettlebell Squats', cat:'Quads', sets:3, reps:'8-12', note:'Kettlebells · quadriceps'},
+  {id:'one_arm_side_deadlift', name:'One-Arm Side Deadlift', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'one_arm_side_laterals', name:'One-Arm Side Laterals', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'one_legged_cable_kickback', name:'One-Legged Cable Kickback', cat:'Glutes', sets:3, reps:'10-15', note:'Cable · glutes', machine:true},
+  {id:'one_arm_chin_up', name:'One Arm Chin-Up', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'one_arm_dumbbell_bench_press', name:'One Arm Dumbbell Bench Press', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'one_arm_dumbbell_preacher_curl', name:'One Arm Dumbbell Preacher Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'one_arm_floor_press', name:'One Arm Floor Press', cat:'Triceps', sets:4, reps:'5-8', note:'Barbell · triceps'},
+  {id:'one_arm_lat_pulldown', name:'One Arm Lat Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'one_arm_pronated_dumbbell_triceps_extension', name:'One Arm Pronated Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'one_arm_supinated_dumbbell_triceps_extension', name:'One Arm Supinated Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'one_leg_barbell_squat', name:'One Leg Barbell Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'open_palm_kettlebell_clean', name:'Open Palm Kettlebell Clean', cat:'Hamstrings', sets:3, reps:'8-12', note:'Kettlebells · hamstrings'},
+  {id:'otis_up', name:'Otis-Up', cat:'Core', sets:3, reps:'8-12', note:'Other · abdominals'},
+  {id:'overhead_cable_curl', name:'Overhead Cable Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'overhead_slam', name:'Overhead Slam', cat:'Back', sets:3, reps:'8-12', note:'Medicine ball · lats'},
+  {id:'overhead_squat', name:'Overhead Squat', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'pallof_press_with_rotation', name:'Pallof Press With Rotation', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'palms_down_dumbbell_wrist_curl_over_a_bench', name:'Palms-Down Dumbbell Wrist Curl Over A Bench', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'palms_down_wrist_curl_over_a_bench', name:'Palms-Down Wrist Curl Over A Bench', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'palms_up_barbell_wrist_curl_over_a_bench', name:'Palms-Up Barbell Wrist Curl Over A Bench', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'palms_up_dumbbell_wrist_curl_over_a_bench', name:'Palms-Up Dumbbell Wrist Curl Over A Bench', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'parallel_bar_dip', name:'Parallel Bar Dip', cat:'Triceps', sets:3, reps:'8-12', note:'Other · triceps'},
+  {id:'physioball_hip_bridge', name:'Physioball Hip Bridge', cat:'Glutes', sets:3, reps:'8-12', note:'Exercise ball · glutes'},
+  {id:'pin_presses', name:'Pin Presses', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'plate_pinch', name:'Plate Pinch', cat:'Biceps', sets:3, reps:'10-15', note:'Other · forearms'},
+  {id:'plate_twist', name:'Plate Twist', cat:'Core', sets:3, reps:'8-12', note:'Other · abdominals'},
+  {id:'platform_hamstring_slides', name:'Platform Hamstring Slides', cat:'Hamstrings', sets:3, reps:'10-15', note:'Other · hamstrings'},
+  {id:'plie_dumbbell_squat', name:'Plie Dumbbell Squat', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'plyo_kettlebell_pushups', name:'Plyo Kettlebell Pushups', cat:'Chest', sets:3, reps:'8-12', note:'Kettlebells · chest'},
+  {id:'plyo_push_up', name:'Plyo Push-up', cat:'Chest', sets:3, reps:'8-12', note:'Body only · chest'},
+  {id:'power_clean_from_blocks', name:'Power Clean from Blocks', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'power_jerk', name:'Power Jerk', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'power_partials', name:'Power Partials', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'power_snatch_from_blocks', name:'Power Snatch from Blocks', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'power_stairs', name:'Power Stairs', cat:'Hamstrings', sets:4, reps:'30-60s', note:'Other · hamstrings'},
+  {id:'preacher_hammer_dumbbell_curl', name:'Preacher Hammer Dumbbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'press_sit_up', name:'Press Sit-Up', cat:'Core', sets:4, reps:'5-8', note:'Barbell · abdominals'},
+  {id:'prone_manual_hamstring', name:'Prone Manual Hamstring', cat:'Hamstrings', sets:3, reps:'10-15', note:'Bodyweight · hamstrings'},
+  {id:'prowler_sprint', name:'Prowler Sprint', cat:'Cardio', sets:1, reps:'15-30m', note:'Other · hamstrings'},
+  {id:'pull_through', name:'Pull Through', cat:'Glutes', sets:3, reps:'10-15', note:'Cable · glutes', machine:true},
+  {id:'pullups', name:'Pullups', cat:'Back', sets:3, reps:'10-15', note:'Body only · lats'},
+  {id:'push_up_wide', name:'Push-Up Wide', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'push_ups_close_triceps_position', name:'Push-Ups - Close Triceps Position', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'push_ups_with_feet_elevated', name:'Push-Ups With Feet Elevated', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'push_ups_with_feet_on_an_exercise_ball', name:'Push-Ups With Feet On An Exercise Ball', cat:'Chest', sets:3, reps:'8-12', note:'Exercise ball · chest'},
+  {id:'push_press_behind_the_neck', name:'Push Press - Behind the Neck', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · shoulders'},
+  {id:'push_up_to_side_plank', name:'Push Up to Side Plank', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'pushups', name:'Pushups', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'pushups_close_and_wide_hand_positions', name:'Pushups (Close and Wide Hand Positions)', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'quick_leap', name:'Quick Leap', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'rack_delivery', name:'Rack Delivery', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · shoulders'},
+  {id:'rack_pull_with_bands', name:'Rack Pull with Bands', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'rack_pulls', name:'Rack Pulls', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'recumbent_bike', name:'Recumbent Bike', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'return_push_from_stance', name:'Return Push from Stance', cat:'Shoulders', sets:3, reps:'8-12', note:'Medicine ball · shoulders'},
+  {id:'reverse_band_bench_press', name:'Reverse Band Bench Press', cat:'Triceps', sets:4, reps:'3-6', note:'Barbell · triceps'},
+  {id:'reverse_band_box_squat', name:'Reverse Band Box Squat', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'reverse_band_deadlift', name:'Reverse Band Deadlift', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'reverse_band_power_squat', name:'Reverse Band Power Squat', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'reverse_band_sumo_deadlift', name:'Reverse Band Sumo Deadlift', cat:'Hamstrings', sets:4, reps:'3-6', note:'Barbell · hamstrings'},
+  {id:'reverse_barbell_curl', name:'Reverse Barbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'reverse_barbell_preacher_curls', name:'Reverse Barbell Preacher Curls', cat:'Biceps', sets:3, reps:'10-15', note:'E-z curl bar · biceps'},
+  {id:'reverse_cable_curl', name:'Reverse Cable Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'reverse_crunch', name:'Reverse Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'reverse_flyes', name:'Reverse Flyes', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'reverse_flyes_with_external_rotation', name:'Reverse Flyes With External Rotation', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'reverse_grip_bent_over_rows', name:'Reverse Grip Bent-Over Rows', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'reverse_grip_triceps_pushdown', name:'Reverse Grip Triceps Pushdown', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'reverse_hyperextension', name:'Reverse Hyperextension', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'reverse_machine_flyes', name:'Reverse Machine Flyes', cat:'Shoulders', sets:3, reps:'10-15', note:'Machine · shoulders', machine:true},
+  {id:'reverse_plate_curls', name:'Reverse Plate Curls', cat:'Biceps', sets:3, reps:'10-15', note:'Other · biceps'},
+  {id:'reverse_triceps_bench_press', name:'Reverse Triceps Bench Press', cat:'Triceps', sets:4, reps:'5-8', note:'Barbell · triceps'},
+  {id:'rickshaw_carry', name:'Rickshaw Carry', cat:'Biceps', sets:4, reps:'30-60s', note:'Other · forearms'},
+  {id:'rickshaw_deadlift', name:'Rickshaw Deadlift', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'ring_dips', name:'Ring Dips', cat:'Triceps', sets:3, reps:'8-12', note:'Other · triceps'},
+  {id:'rocket_jump', name:'Rocket Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'rocking_standing_calf_raise', name:'Rocking Standing Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Barbell · calves'},
+  {id:'rocky_pull_ups_pulldowns', name:'Rocky Pull-Ups/Pulldowns', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'romanian_deadlift_from_deficit', name:'Romanian Deadlift from Deficit', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'rope_climb', name:'Rope Climb', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'rope_crunch', name:'Rope Crunch', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'rope_jumping', name:'Rope Jumping', cat:'Cardio', sets:1, reps:'15-30m', note:'Other · quadriceps'},
+  {id:'rope_straight_arm_pulldown', name:'Rope Straight-Arm Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'rowing_stationary', name:'Rowing, Stationary', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'running_treadmill', name:'Running, Treadmill', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'sandbag_load', name:'Sandbag Load', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'scapular_pull_up', name:'Scapular Pull-Up', cat:'Back', sets:3, reps:'10-15', note:'Bodyweight · traps'},
+  {id:'scissors_jump', name:'Scissors Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'seated_band_hamstring_curl', name:'Seated Band Hamstring Curl', cat:'Hamstrings', sets:3, reps:'10-15', note:'Other · hamstrings'},
+  {id:'seated_barbell_military_press', name:'Seated Barbell Military Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'seated_barbell_twist', name:'Seated Barbell Twist', cat:'Core', sets:3, reps:'10-15', note:'Barbell · abdominals'},
+  {id:'seated_bent_over_one_arm_dumbbell_triceps_extension', name:'Seated Bent-Over One-Arm Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'seated_bent_over_rear_delt_raise', name:'Seated Bent-Over Rear Delt Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'seated_bent_over_two_arm_dumbbell_triceps_extension', name:'Seated Bent-Over Two-Arm Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'seated_cable_rows', name:'Seated Cable Rows', cat:'Back', sets:3, reps:'10-15', note:'Cable · middle back', machine:true},
+  {id:'seated_cable_shoulder_press', name:'Seated Cable Shoulder Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'seated_close_grip_concentration_barbell_curl', name:'Seated Close-Grip Concentration Barbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'seated_dumbbell_curl', name:'Seated Dumbbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'seated_dumbbell_inner_biceps_curl', name:'Seated Dumbbell Inner Biceps Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'seated_dumbbell_palms_down_wrist_curl', name:'Seated Dumbbell Palms-Down Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'seated_dumbbell_palms_up_wrist_curl', name:'Seated Dumbbell Palms-Up Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'seated_dumbbell_press', name:'Seated Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'seated_flat_bench_leg_pull_in', name:'Seated Flat Bench Leg Pull-In', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'seated_good_mornings', name:'Seated Good Mornings', cat:'Back', sets:4, reps:'3-6', note:'Barbell · lower back'},
+  {id:'seated_head_harness_neck_resistance', name:'Seated Head Harness Neck Resistance', cat:'Back', sets:3, reps:'10-15', note:'Other · neck'},
+  {id:'seated_leg_curl', name:'Seated Leg Curl', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'seated_leg_tucks', name:'Seated Leg Tucks', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'seated_one_arm_dumbbell_palms_down_wrist_curl', name:'Seated One-Arm Dumbbell Palms-Down Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'seated_one_arm_dumbbell_palms_up_wrist_curl', name:'Seated One-Arm Dumbbell Palms-Up Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · forearms'},
+  {id:'seated_one_arm_cable_pulley_rows', name:'Seated One-arm Cable Pulley Rows', cat:'Back', sets:3, reps:'10-15', note:'Cable · middle back', machine:true},
+  {id:'seated_palm_up_barbell_wrist_curl', name:'Seated Palm-Up Barbell Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'seated_palms_down_barbell_wrist_curl', name:'Seated Palms-Down Barbell Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'seated_side_lateral_raise', name:'Seated Side Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'seated_triceps_press', name:'Seated Triceps Press', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'seated_two_arm_palms_up_low_pulley_wrist_curl', name:'Seated Two-Arm Palms-Up Low-Pulley Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · forearms', machine:true},
+  {id:'see_saw_press_alternating_side_press', name:'See-Saw Press (Alternating Side Press)', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'shotgun_row', name:'Shotgun Row', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'shoulder_press_with_bands', name:'Shoulder Press - With Bands', cat:'Shoulders', sets:3, reps:'8-12', note:'Bands · shoulders'},
+  {id:'side_bridge', name:'Side Bridge', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'side_hop_sprint', name:'Side Hop-Sprint', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'side_jackknife', name:'Side Jackknife', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'side_lateral_raise', name:'Side Lateral Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'side_laterals_to_front_raise', name:'Side Laterals to Front Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'side_standing_long_jump', name:'Side Standing Long Jump', cat:'Quads', sets:3, reps:'8-12', note:'Bodyweight · quadriceps'},
+  {id:'side_to_side_chins', name:'Side To Side Chins', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'side_to_side_box_shuffle', name:'Side to Side Box Shuffle', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_arm_cable_crossover', name:'Single-Arm Cable Crossover', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'single_arm_linear_jammer', name:'Single-Arm Linear Jammer', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'single_arm_push_up', name:'Single-Arm Push-Up', cat:'Chest', sets:3, reps:'10-15', note:'Body only · chest'},
+  {id:'single_cone_sprint_drill', name:'Single-Cone Sprint Drill', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_leg_high_box_squat', name:'Single-Leg High Box Squat', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_leg_hop_progression', name:'Single-Leg Hop Progression', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_leg_lateral_hop', name:'Single-Leg Lateral Hop', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_leg_leg_extension', name:'Single-Leg Leg Extension', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'single_leg_stride_jump', name:'Single-Leg Stride Jump', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'single_dumbbell_raise', name:'Single Dumbbell Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'single_leg_butt_kick', name:'Single Leg Butt Kick', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'single_leg_glute_bridge', name:'Single Leg Glute Bridge', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'single_leg_push_off', name:'Single Leg Push-off', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'sit_up', name:'Sit-Up', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'skating', name:'Skating', cat:'Cardio', sets:1, reps:'15-30m', note:'Other · quadriceps'},
+  {id:'sled_drag_harness', name:'Sled Drag - Harness', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'sled_overhead_backward_walk', name:'Sled Overhead Backward Walk', cat:'Shoulders', sets:3, reps:'8-12', note:'Other · shoulders'},
+  {id:'sled_overhead_triceps_extension', name:'Sled Overhead Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Other · triceps'},
+  {id:'sled_reverse_flye', name:'Sled Reverse Flye', cat:'Shoulders', sets:3, reps:'10-15', note:'Other · shoulders'},
+  {id:'sled_row', name:'Sled Row', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'sledgehammer_swings', name:'Sledgehammer Swings', cat:'Core', sets:3, reps:'8-12', note:'Other · abdominals'},
+  {id:'smith_incline_shoulder_raise', name:'Smith Incline Shoulder Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Barbell · shoulders'},
+  {id:'smith_machine_behind_the_back_shrug', name:'Smith Machine Behind the Back Shrug', cat:'Back', sets:3, reps:'10-15', note:'Machine · traps', machine:true},
+  {id:'smith_machine_bench_press', name:'Smith Machine Bench Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'smith_machine_bent_over_row', name:'Smith Machine Bent Over Row', cat:'Back', sets:3, reps:'10-15', note:'Machine · middle back', machine:true},
+  {id:'smith_machine_calf_raise', name:'Smith Machine Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Machine · calves', machine:true},
+  {id:'smith_machine_close_grip_bench_press', name:'Smith Machine Close-Grip Bench Press', cat:'Triceps', sets:3, reps:'10-15', note:'Machine · triceps', machine:true},
+  {id:'smith_machine_decline_press', name:'Smith Machine Decline Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'smith_machine_hang_power_clean', name:'Smith Machine Hang Power Clean', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'smith_machine_hip_raise', name:'Smith Machine Hip Raise', cat:'Core', sets:3, reps:'10-15', note:'Machine · abdominals', machine:true},
+  {id:'smith_machine_incline_bench_press', name:'Smith Machine Incline Bench Press', cat:'Chest', sets:3, reps:'10-15', note:'Machine · chest', machine:true},
+  {id:'smith_machine_leg_press', name:'Smith Machine Leg Press', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'smith_machine_one_arm_upright_row', name:'Smith Machine One-Arm Upright Row', cat:'Shoulders', sets:3, reps:'10-15', note:'Machine · shoulders', machine:true},
+  {id:'smith_machine_overhead_shoulder_press', name:'Smith Machine Overhead Shoulder Press', cat:'Shoulders', sets:3, reps:'10-15', note:'Machine · shoulders', machine:true},
+  {id:'smith_machine_pistol_squat', name:'Smith Machine Pistol Squat', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'smith_machine_reverse_calf_raises', name:'Smith Machine Reverse Calf Raises', cat:'Calves', sets:3, reps:'10-15', note:'Machine · calves', machine:true},
+  {id:'smith_machine_stiff_legged_deadlift', name:'Smith Machine Stiff-Legged Deadlift', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'smith_machine_upright_row', name:'Smith Machine Upright Row', cat:'Back', sets:3, reps:'10-15', note:'Machine · traps', machine:true},
+  {id:'smith_single_leg_split_squat', name:'Smith Single-Leg Split Squat', cat:'Quads', sets:3, reps:'10-15', note:'Machine · quadriceps', machine:true},
+  {id:'snatch', name:'Snatch', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'snatch_balance', name:'Snatch Balance', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'snatch_deadlift', name:'Snatch Deadlift', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'snatch_pull', name:'Snatch Pull', cat:'Hamstrings', sets:4, reps:'5-8', note:'Barbell · hamstrings'},
+  {id:'snatch_shrug', name:'Snatch Shrug', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · traps'},
+  {id:'snatch_from_blocks', name:'Snatch from Blocks', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'speed_band_overhead_triceps', name:'Speed Band Overhead Triceps', cat:'Triceps', sets:3, reps:'10-15', note:'Bands · triceps'},
+  {id:'speed_box_squat', name:'Speed Box Squat', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'speed_squats', name:'Speed Squats', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'spell_caster', name:'Spell Caster', cat:'Core', sets:3, reps:'8-12', note:'Dumbbell · abdominals'},
+  {id:'spider_crawl', name:'Spider Crawl', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'split_clean', name:'Split Clean', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'split_jerk', name:'Split Jerk', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · quadriceps'},
+  {id:'split_jump', name:'Split Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'split_snatch', name:'Split Snatch', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'split_squat_with_dumbbells', name:'Split Squat with Dumbbells', cat:'Quads', sets:3, reps:'8-12', note:'Dumbbell · quadriceps'},
+  {id:'squat_jerk', name:'Squat Jerk', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'squat_with_bands', name:'Squat with Bands', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'squat_with_chains', name:'Squat with Chains', cat:'Quads', sets:4, reps:'3-6', note:'Barbell · quadriceps'},
+  {id:'squat_with_plate_movers', name:'Squat with Plate Movers', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'squats_with_bands', name:'Squats - With Bands', cat:'Quads', sets:3, reps:'8-12', note:'Bands · quadriceps'},
+  {id:'standing_alternating_dumbbell_press', name:'Standing Alternating Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'standing_barbell_calf_raise', name:'Standing Barbell Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Barbell · calves'},
+  {id:'standing_barbell_press_behind_neck', name:'Standing Barbell Press Behind Neck', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'standing_bent_over_one_arm_dumbbell_triceps_extension', name:'Standing Bent-Over One-Arm Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'standing_bent_over_two_arm_dumbbell_triceps_extension', name:'Standing Bent-Over Two-Arm Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'standing_biceps_cable_curl', name:'Standing Biceps Cable Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'standing_bradford_press', name:'Standing Bradford Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'standing_cable_chest_press', name:'Standing Cable Chest Press', cat:'Chest', sets:3, reps:'10-15', note:'Cable · chest', machine:true},
+  {id:'standing_cable_lift', name:'Standing Cable Lift', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'standing_cable_wood_chop', name:'Standing Cable Wood Chop', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'standing_calf_raises', name:'Standing Calf Raises', cat:'Calves', sets:3, reps:'10-15', note:'Machine · calves', machine:true},
+  {id:'standing_concentration_curl', name:'Standing Concentration Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'standing_dumbbell_calf_raise', name:'Standing Dumbbell Calf Raise', cat:'Calves', sets:3, reps:'10-15', note:'Dumbbell · calves'},
+  {id:'standing_dumbbell_press', name:'Standing Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'standing_dumbbell_reverse_curl', name:'Standing Dumbbell Reverse Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'standing_dumbbell_straight_arm_front_delt_raise_above_head', name:'Standing Dumbbell Straight-Arm Front Delt Raise Above Head', cat:'Shoulders', sets:3, reps:'10-15', note:'Dumbbell · shoulders'},
+  {id:'standing_dumbbell_triceps_extension', name:'Standing Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'standing_dumbbell_upright_row', name:'Standing Dumbbell Upright Row', cat:'Back', sets:3, reps:'8-12', note:'Dumbbell · traps'},
+  {id:'standing_front_barbell_raise_over_head', name:'Standing Front Barbell Raise Over Head', cat:'Shoulders', sets:3, reps:'10-15', note:'Barbell · shoulders'},
+  {id:'standing_inner_biceps_curl', name:'Standing Inner-Biceps Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'standing_leg_curl', name:'Standing Leg Curl', cat:'Hamstrings', sets:3, reps:'10-15', note:'Machine · hamstrings', machine:true},
+  {id:'standing_long_jump', name:'Standing Long Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'standing_low_pulley_deltoid_raise', name:'Standing Low-Pulley Deltoid Raise', cat:'Shoulders', sets:3, reps:'10-15', note:'Cable · shoulders', machine:true},
+  {id:'standing_low_pulley_one_arm_triceps_extension', name:'Standing Low-Pulley One-Arm Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'standing_military_press', name:'Standing Military Press', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'standing_olympic_plate_hand_squeeze', name:'Standing Olympic Plate Hand Squeeze', cat:'Biceps', sets:3, reps:'10-15', note:'Other · forearms'},
+  {id:'standing_one_arm_cable_curl', name:'Standing One-Arm Cable Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Cable · biceps', machine:true},
+  {id:'standing_one_arm_dumbbell_curl_over_incline_bench', name:'Standing One-Arm Dumbbell Curl Over Incline Bench', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'standing_one_arm_dumbbell_triceps_extension', name:'Standing One-Arm Dumbbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'standing_overhead_barbell_triceps_extension', name:'Standing Overhead Barbell Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Barbell · triceps'},
+  {id:'standing_palm_in_one_arm_dumbbell_press', name:'Standing Palm-In One-Arm Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'standing_palms_in_dumbbell_press', name:'Standing Palms-In Dumbbell Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Dumbbell · shoulders'},
+  {id:'standing_palms_up_barbell_behind_the_back_wrist_curl', name:'Standing Palms-Up Barbell Behind The Back Wrist Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'standing_rope_crunch', name:'Standing Rope Crunch', cat:'Core', sets:3, reps:'10-15', note:'Cable · abdominals', machine:true},
+  {id:'standing_towel_triceps_extension', name:'Standing Towel Triceps Extension', cat:'Triceps', sets:3, reps:'10-15', note:'Body only · triceps'},
+  {id:'standing_two_arm_overhead_throw', name:'Standing Two-Arm Overhead Throw', cat:'Shoulders', sets:3, reps:'8-12', note:'Medicine ball · shoulders'},
+  {id:'star_jump', name:'Star Jump', cat:'Quads', sets:3, reps:'8-12', note:'Body only · quadriceps'},
+  {id:'step_up_with_knee_raise', name:'Step-up with Knee Raise', cat:'Glutes', sets:3, reps:'10-15', note:'Body only · glutes'},
+  {id:'step_mill', name:'Step Mill', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'stiff_legged_barbell_deadlift', name:'Stiff-Legged Barbell Deadlift', cat:'Hamstrings', sets:4, reps:'5-8', note:'Barbell · hamstrings'},
+  {id:'stiff_legged_dumbbell_deadlift', name:'Stiff-Legged Dumbbell Deadlift', cat:'Hamstrings', sets:3, reps:'8-12', note:'Dumbbell · hamstrings'},
+  {id:'stiff_leg_barbell_good_morning', name:'Stiff Leg Barbell Good Morning', cat:'Back', sets:4, reps:'5-8', note:'Barbell · lower back'},
+  {id:'straight_arm_dumbbell_pullover', name:'Straight-Arm Dumbbell Pullover', cat:'Chest', sets:3, reps:'8-12', note:'Dumbbell · chest'},
+  {id:'straight_bar_bench_mid_rows', name:'Straight Bar Bench Mid Rows', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'straight_raises_on_incline_bench', name:'Straight Raises on Incline Bench', cat:'Shoulders', sets:3, reps:'10-15', note:'Barbell · shoulders'},
+  {id:'stride_jump_crossover', name:'Stride Jump Crossover', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'sumo_deadlift_with_bands', name:'Sumo Deadlift with Bands', cat:'Hamstrings', sets:4, reps:'3-6', note:'Barbell · hamstrings'},
+  {id:'sumo_deadlift_with_chains', name:'Sumo Deadlift with Chains', cat:'Hamstrings', sets:4, reps:'3-6', note:'Barbell · hamstrings'},
+  {id:'supine_chest_throw', name:'Supine Chest Throw', cat:'Triceps', sets:3, reps:'8-12', note:'Medicine ball · triceps'},
+  {id:'supine_one_arm_overhead_throw', name:'Supine One-Arm Overhead Throw', cat:'Core', sets:3, reps:'8-12', note:'Medicine ball · abdominals'},
+  {id:'supine_two_arm_overhead_throw', name:'Supine Two-Arm Overhead Throw', cat:'Core', sets:3, reps:'8-12', note:'Medicine ball · abdominals'},
+  {id:'suspended_fallout', name:'Suspended Fallout', cat:'Core', sets:3, reps:'10-15', note:'Other · abdominals'},
+  {id:'suspended_push_up', name:'Suspended Push-Up', cat:'Chest', sets:3, reps:'8-12', note:'Other · chest'},
+  {id:'suspended_reverse_crunch', name:'Suspended Reverse Crunch', cat:'Core', sets:3, reps:'10-15', note:'Other · abdominals'},
+  {id:'suspended_row', name:'Suspended Row', cat:'Back', sets:3, reps:'8-12', note:'Other · middle back'},
+  {id:'suspended_split_squat', name:'Suspended Split Squat', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'t_bar_row_with_handle', name:'T-Bar Row with Handle', cat:'Back', sets:4, reps:'5-8', note:'Barbell · middle back'},
+  {id:'tate_press', name:'Tate Press', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'thigh_abductor', name:'Thigh Abductor', cat:'Glutes', sets:3, reps:'10-15', note:'Machine · abductors', machine:true},
+  {id:'thigh_adductor', name:'Thigh Adductor', cat:'Glutes', sets:3, reps:'10-15', note:'Machine · adductors', machine:true},
+  {id:'tire_flip', name:'Tire Flip', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'trail_running_walking', name:'Trail Running/Walking', cat:'Cardio', sets:1, reps:'15-30m', note:'Bodyweight · quadriceps'},
+  {id:'tricep_dumbbell_kickback', name:'Tricep Dumbbell Kickback', cat:'Triceps', sets:3, reps:'10-15', note:'Dumbbell · triceps'},
+  {id:'triceps_overhead_extension_with_rope', name:'Triceps Overhead Extension with Rope', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'triceps_pushdown', name:'Triceps Pushdown', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'triceps_pushdown_rope_attachment', name:'Triceps Pushdown - Rope Attachment', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'triceps_pushdown_v_bar_attachment', name:'Triceps Pushdown - V-Bar Attachment', cat:'Triceps', sets:3, reps:'10-15', note:'Cable · triceps', machine:true},
+  {id:'tuck_crunch', name:'Tuck Crunch', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'two_arm_dumbbell_preacher_curl', name:'Two-Arm Dumbbell Preacher Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'two_arm_kettlebell_clean', name:'Two-Arm Kettlebell Clean', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'two_arm_kettlebell_jerk', name:'Two-Arm Kettlebell Jerk', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'two_arm_kettlebell_military_press', name:'Two-Arm Kettlebell Military Press', cat:'Shoulders', sets:3, reps:'8-12', note:'Kettlebells · shoulders'},
+  {id:'two_arm_kettlebell_row', name:'Two-Arm Kettlebell Row', cat:'Back', sets:3, reps:'8-12', note:'Kettlebells · middle back'},
+  {id:'underhand_cable_pulldowns', name:'Underhand Cable Pulldowns', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'upright_barbell_row', name:'Upright Barbell Row', cat:'Shoulders', sets:4, reps:'5-8', note:'Barbell · shoulders'},
+  {id:'upright_cable_row', name:'Upright Cable Row', cat:'Back', sets:3, reps:'10-15', note:'Cable · traps', machine:true},
+  {id:'upright_row_with_bands', name:'Upright Row - With Bands', cat:'Back', sets:3, reps:'8-12', note:'Bands · traps'},
+  {id:'v_bar_pulldown', name:'V-Bar Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'v_bar_pullup', name:'V-Bar Pullup', cat:'Back', sets:3, reps:'10-15', note:'Body only · lats'},
+  {id:'vertical_swing', name:'Vertical Swing', cat:'Hamstrings', sets:3, reps:'8-12', note:'Dumbbell · hamstrings'},
+  {id:'walking_treadmill', name:'Walking, Treadmill', cat:'Cardio', sets:1, reps:'15-30m', note:'Machine · quadriceps', machine:true},
+  {id:'weighted_ball_hyperextension', name:'Weighted Ball Hyperextension', cat:'Back', sets:3, reps:'8-12', note:'Exercise ball · lower back'},
+  {id:'weighted_ball_side_bend', name:'Weighted Ball Side Bend', cat:'Core', sets:3, reps:'10-15', note:'Exercise ball · abdominals'},
+  {id:'weighted_bench_dip', name:'Weighted Bench Dip', cat:'Triceps', sets:3, reps:'8-12', note:'Other · triceps'},
+  {id:'weighted_crunches', name:'Weighted Crunches', cat:'Core', sets:3, reps:'10-15', note:'Medicine ball · abdominals'},
+  {id:'weighted_jump_squat', name:'Weighted Jump Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'weighted_pull_ups', name:'Weighted Pull Ups', cat:'Back', sets:3, reps:'8-12', note:'Other · lats'},
+  {id:'weighted_sissy_squat', name:'Weighted Sissy Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'weighted_sit_ups_with_bands', name:'Weighted Sit-Ups - With Bands', cat:'Core', sets:3, reps:'10-15', note:'Other · abdominals'},
+  {id:'weighted_squat', name:'Weighted Squat', cat:'Quads', sets:3, reps:'8-12', note:'Other · quadriceps'},
+  {id:'wide_grip_barbell_bench_press', name:'Wide-Grip Barbell Bench Press', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'wide_grip_decline_barbell_bench_press', name:'Wide-Grip Decline Barbell Bench Press', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'wide_grip_decline_barbell_pullover', name:'Wide-Grip Decline Barbell Pullover', cat:'Chest', sets:4, reps:'5-8', note:'Barbell · chest'},
+  {id:'wide_grip_lat_pulldown', name:'Wide-Grip Lat Pulldown', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'wide_grip_pulldown_behind_the_neck', name:'Wide-Grip Pulldown Behind The Neck', cat:'Back', sets:3, reps:'10-15', note:'Cable · lats', machine:true},
+  {id:'wide_grip_rear_pull_up', name:'Wide-Grip Rear Pull-Up', cat:'Back', sets:3, reps:'10-15', note:'Body only · lats'},
+  {id:'wide_grip_standing_barbell_curl', name:'Wide-Grip Standing Barbell Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · biceps'},
+  {id:'wide_stance_barbell_squat', name:'Wide Stance Barbell Squat', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'wide_stance_stiff_legs', name:'Wide Stance Stiff Legs', cat:'Olympic', sets:4, reps:'3-5', note:'Barbell · hamstrings'},
+  {id:'wind_sprints', name:'Wind Sprints', cat:'Core', sets:3, reps:'10-15', note:'Body only · abdominals'},
+  {id:'wrist_roller', name:'Wrist Roller', cat:'Biceps', sets:3, reps:'10-15', note:'Other · forearms'},
+  {id:'wrist_rotations_with_straight_bar', name:'Wrist Rotations with Straight Bar', cat:'Biceps', sets:3, reps:'10-15', note:'Barbell · forearms'},
+  {id:'yoke_walk', name:'Yoke Walk', cat:'Quads', sets:4, reps:'30-60s', note:'Other · quadriceps'},
+  {id:'zercher_squats', name:'Zercher Squats', cat:'Quads', sets:4, reps:'5-8', note:'Barbell · quadriceps'},
+  {id:'zottman_curl', name:'Zottman Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+  {id:'zottman_preacher_curl', name:'Zottman Preacher Curl', cat:'Biceps', sets:3, reps:'10-15', note:'Dumbbell · biceps'},
+
 ];
 
 // Map each body-part category to its PPL split (for grouping/labeling)
@@ -624,8 +1343,7 @@ const CAT_TO_PPL = {
   Chest:'Push', Shoulders:'Push', Triceps:'Push',
   Back:'Pull', Biceps:'Pull',
   Quads:'Legs', Hamstrings:'Legs', Glutes:'Legs', Calves:'Legs',
-  Core:'Core', 'Full Body':'Full Body', Cardio:'Cardio', Olympic:'Full Body',
-  Machines:'Machines'
+  Core:'Core', 'Full Body':'Full Body', Cardio:'Cardio', Olympic:'Full Body'
 };
 DB.forEach(e=>{ e.ppl = CAT_TO_PPL[e.cat] || 'Other'; });
 
@@ -648,7 +1366,7 @@ const CAT_COLORS = {
 };
 const PPL_COLORS = { Push:'var(--push)', Pull:'var(--pull)', Legs:'var(--legs)', Core:'var(--core)', 'Full Body':'var(--full)', Cardio:'var(--cardio)', Machines:'var(--accent)' };
 const ALL_CATS = [...new Set(DB.map(e=>e.cat))];
-const ALL_PPL  = ['Push','Pull','Legs','Core','Full Body','Cardio','Machines'];
+const ALL_PPL  = ['Push','Pull','Legs','Core','Full Body','Cardio'];
 
 const WORKOUT_META = {
   push:   {name:'Push',   iconKey:'push',color:'var(--push)',subtitle:'Chest · Shoulders · Triceps',suggestCats:['Chest','Shoulders','Triceps'],
@@ -669,8 +1387,8 @@ const WORKOUT_META = {
     defaultEx:[]},
   custom: {name:'Custom', iconKey:'custom',color:'var(--accent)',subtitle:'Build your own workout',suggestCats:ALL_CATS,
     defaultEx:[]},
-  machines:{name:'Machines',iconKey:'machine',color:'var(--accent)',subtitle:'Gym machines & cables',suggestCats:['Machines'],
-    defaultEx:['mc1','mc10','mc22','mc23','mc24']},
+  machines:{name:'Machines',iconKey:'machine',color:'var(--accent)',subtitle:'Gym machines & cables',suggestCats:ALL_CATS,machinesDefault:true,
+    defaultEx:[]},
 };
 
 // ── SVG ICON LIBRARY ──────────────────────────────────────
@@ -908,6 +1626,12 @@ function getDaySessions(key){
     delete log._done; delete log._startedAt; delete log._at; delete log._durationMin;
     sv2('lift_logs', logs);
   }
+  // prune stale empty slots left over from the old persisted-empty-slot flow
+  if(log._sessions && log._sessions.some(s=>!s||!s.type)){
+    const before = log._sessions.length;
+    log._sessions = log._sessions.filter(s=>s&&s.type);
+    if(log._sessions.length !== before) sv2('lift_logs', logs);
+  }
   return log._sessions || [];
 }
 
@@ -924,7 +1648,9 @@ function addNewSession(key, type){
   if(!logs[key]._sessions) logs[key]._sessions = [];
   const myTemplates = ld('lift_templates',{});
   const saved = myTemplates[type];
-  const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+  // No saved template yet: start with an empty exercise list so the user builds
+  // their own session via search, instead of auto-filling a default list.
+  const tmpl = saved || [];
   const s = { type, _exercises: tmpl.map(t=>t.id), _notes:'', _done:false, _startedAt: new Date().toISOString() };
   tmpl.forEach(t=>{ s[t.id] = Array.from({length:t.sets||getEx(t.id).sets},()=>({w:'',r:'',done:false})); });
   logs[key]._sessions.push(s);
@@ -952,6 +1678,33 @@ function renderWPreserveScroll(){
 }
 
 function renderW(){
+  // Preserve scroll position across re-renders so checking a set, adding/removing
+  // an exercise, etc. doesn't yank the user back to the top of the page.
+  // A raw scrollY restore isn't reliable here because re-rendering can reshuffle
+  // content above the viewport (e.g. an exercise disappearing from the "add
+  // exercise" search results once it's added) — the same pixel offset can point
+  // at completely different content afterward. Instead, anchor to the nearest
+  // identifiable element (one with an id, e.g. an exercise card) near the top
+  // of the viewport, and re-align to that same element's position post-render.
+  const _scrollY = window.scrollY;
+  let _anchorEl = null, _anchorOffset = 0;
+  if(_scrollY > 0){
+    // probe below the sticky header so we anchor to scrolling content, not
+    // the pinned header/session-bar (which never moves and would give a
+    // useless zero delta)
+    const headerH = document.querySelector('.header')?.getBoundingClientRect().bottom || 90;
+    const probeY = Math.max(headerH + 20, 100);
+    let node = document.elementFromPoint(Math.round(window.innerWidth/2), probeY);
+    while(node && node !== document.body){
+      const pos = node.id ? getComputedStyle(node).position : '';
+      if(node.id && pos !== 'sticky' && pos !== 'fixed') break;
+      node = node.parentElement;
+    }
+    if(node && node.id){
+      _anchorEl = node.id;
+      _anchorOffset = node.getBoundingClientRect().top;
+    }
+  }
   renderStrip();
   const key=dkey(curOff);
   document.getElementById('db').textContent=rlabel(curOff);
@@ -959,6 +1712,21 @@ function renderW(){
   const sessions = getDaySessions(key);
   renderSessionBar(key, sessions);
   renderDayView(el, key, sessions);
+  if(_scrollY > 0){
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        if(_anchorEl){
+          const again = document.getElementById(_anchorEl);
+          if(again){
+            const delta = again.getBoundingClientRect().top - _anchorOffset;
+            window.scrollTo(0, window.scrollY + delta);
+            return;
+          }
+        }
+        window.scrollTo(0, _scrollY);
+      });
+    });
+  }
 }
 
 function renderStrip(){
@@ -1001,7 +1769,8 @@ function scrollToSession(si){
 }
 
 function renderDayView(el, key, sessions){
-  if(!sessions.length && !addingSession){
+  const typedSessions = sessions.filter(s=>s&&s.type);
+  if(!typedSessions.length && !addingSession){
     renderPicker(el, key, -1);
     return;
   }
@@ -1123,7 +1892,7 @@ function selectSessionType(key, si, type){
     const s = logs[key]._sessions[si] || {};
     const myTemplates = ld('lift_templates',{});
     const saved = myTemplates[type];
-    const tmpl = saved || (WORKOUT_META[type].defaultEx||[]).map(id=>({id, sets:getEx(id).sets}));
+    const tmpl = saved || [];
     s.type = type;
     s._exercises = tmpl.map(t=>t.id);
     s._startedAt = new Date().toISOString();
@@ -1146,8 +1915,15 @@ function toggleSessionExpanded(si){
 
 function startAddSession(){
   addingSession = true;
+  toast('Choose a workout type below');
   renderW();
-  setTimeout(()=>{ document.querySelector('.scroll').scrollTo({top:99999,behavior:'smooth'}); },100);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const picker = document.querySelector('.inline-picker-card');
+      if(picker){ picker.scrollIntoView({behavior:'smooth', block:'start'}); }
+      else { window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'}); }
+    });
+  });
 }
 
 function cancelSession(key, si){
@@ -1196,10 +1972,19 @@ function autoSaveTemplate(key,si){
 }
 
 // ── SEARCH ────────────────────────────────────────────────
+let machinesOnly = false;
+function toggleMachinesOnly(key,type,si){
+  machinesOnly = !machinesOnly;
+  renderW();
+}
+
 function renderSearch(key,type,exIds,si){
   const m=WORKOUT_META[type];
   const defaultPPL = ALL_PPL.find(p=>m.suggestCats?.some(c=>CAT_TO_PPL[c]===p)) || 'All';
-  if(searchCat==='__init__') searchCat = defaultPPL;
+  if(searchCat==='__init__'){
+    searchCat = defaultPPL;
+    machinesOnly = !!m.machinesDefault;
+  }
   const chips=['All',...ALL_PPL];
   return `
     <div class="plabel" style="margin-top:4px">Add an exercise</div>
@@ -1210,6 +1995,7 @@ function renderSearch(key,type,exIds,si){
     </div>
     <div class="chips" id="chips-${si}">
       ${chips.map(c=>`<div class="chip${c===searchCat?' on':''}" onclick="setCat('${c}','${key}','${type}',${si})">${c}</div>`).join('')}
+      <div class="chip${machinesOnly?' on':''}" id="machChip-${si}" onclick="toggleMachinesOnly('${key}','${type}',${si})">🏋️ Machines only</div>
     </div>
     <div id="exResults-${si}">${renderGrouped(key,type,exIds,si,'')}</div>`;
 }
@@ -1219,6 +2005,7 @@ function renderGrouped(key,type,exIds,si,query){
   const q=(query||'').toLowerCase().trim();
   let pool = DB.filter(e=>!exIds.includes(e.id));
   if(searchCat && searchCat!=='All') pool = pool.filter(e=>e.ppl===searchCat);
+  if(machinesOnly) pool = pool.filter(e=>e.machine===true);
   if(q) pool = pool.filter(e=>e.name.toLowerCase().includes(q));
   if(!pool.length){
     if(q.length>2){
@@ -1235,7 +2022,8 @@ function renderGrouped(key,type,exIds,si,query){
     html += `<div class="ppl-section-label" style="color:${pplCol}">${ppl}</div>`;
     cats.forEach(cat=>{
       const items = pplItems.filter(e=>e.cat===cat).slice(0, q ? 20 : 5);
-      html += `<div class="bodypart-label">${cat}</div>`;
+      const catId = 'catsec-'+si+'-'+cat.replace(/[^a-zA-Z0-9]/g,'');
+      html += `<div class="bodypart-label" id="${catId}">${cat}</div>`;
       html += `<div class="sresults">${items.map(e=>exRow(e,key,type,si)).join('')}</div>`;
     });
   });
@@ -1251,7 +2039,7 @@ function exRow(e,key,type,si){
   return`<div class="sri" onclick="addEx('${e.id}','${key}','${type}',${si})">
     <span class="sri-icon">${svgIcon(ik)}</span>
     <div style="flex:1;min-width:0">
-      <div class="sri-name">${e.name}</div>
+      <div class="sri-name">${e.name}${e.machine?' <span style=\"opacity:.55;font-size:11px\">🏋️</span>':''}</div>
       <div class="sri-sub">${e.sets} sets · ${e.reps}</div>
     </div>
     <span class="sri-tag" style="color:${col}">${e.cat}</span>
@@ -1571,9 +2359,16 @@ function sv(v){
   document.querySelectorAll('.ni2').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.getElementById('nav-'+v).classList.add('active');
-  // Hide FAB on non-workout views
   const fab=document.getElementById('fabAddSession');
-  if(fab) fab.style.display = v==='workout' ? fab.style.display : 'none';
+  if(v==='workout'){
+    // Re-render so the FAB's visibility is recalculated from actual session
+    // state (renderSessionBar), instead of just reusing whatever display
+    // value was left over from when we last navigated away.
+    renderW();
+  } else {
+    // Hide FAB on non-workout views
+    if(fab) fab.style.display = 'none';
+  }
   if(v==='history')renderHistory();if(v==='stats')renderStats();
 }
 
