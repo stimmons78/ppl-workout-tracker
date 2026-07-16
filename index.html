@@ -156,6 +156,9 @@ body.light .exi{box-shadow:inset 0 1px 1px rgba(255,255,255,.5)}
 .session-remove-btn{background:none;border:none;cursor:pointer;padding:4px;color:var(--dim2);flex:0 0 auto;display:flex;align-items:center;margin-left:auto;border-radius:8px}
 .session-remove-btn:active{background:rgba(240,84,74,.12);color:var(--red)}
 .session-remove-btn svg{width:15px;height:15px}
+.pcard.done-collapsed{cursor:pointer}
+.pcard.done-collapsed .ringtxt svg{width:18px;height:18px;stroke:var(--green);stroke-width:3}
+.pcard.done-collapsed:active{opacity:.85}
 .add-session-btn{width:100%;background:var(--ag);border:none;border-radius:18px;padding:14px;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;margin-top:8px;box-shadow:var(--shadow-sm)}
 .add-session-btn:active{opacity:.8}
 .add-session-btn svg{width:16px;height:16px}
@@ -326,6 +329,13 @@ body.light .toast{background:#1f2030}
     <input id="ti" type="password" class="mi" placeholder="ghp_...">
     <div class="mh">Your GitHub Personal Access Token with <strong>repo</strong> scope. Get it at github.com/settings/tokens → Generate new token (classic) → check repo.</div>
     <button class="mb2 p" onclick="saveToken()">Save Token</button>
+
+    <div class="ml" style="margin-top:16px">Backup & Restore</div>
+    <div class="mh">Download everything (workouts, PRs, custom exercises, templates) as a file. Keep it safe in case you clear your browser or switch devices.</div>
+    <button class="mb2" style="background:var(--ag);color:var(--accent)" onclick="exportAllData()">Export Backup File</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(event)">
+    <button class="mb2" style="background:var(--bg);color:var(--dim)" onclick="document.getElementById('importFile').click()">Import Backup File</button>
+
     <button class="mb2 s" onclick="closeSettings()">Close</button>
   </div>
 </div>
@@ -934,6 +944,13 @@ function dayHasLog(key){
 }
 
 // ── RENDER ────────────────────────────────────────────────
+function renderWPreserveScroll(){
+  const scrollEl = document.querySelector('.scroll');
+  const y = scrollEl ? scrollEl.scrollTop : 0;
+  renderW();
+  if(scrollEl) requestAnimationFrame(()=>{ scrollEl.scrollTop = y; });
+}
+
 function renderW(){
   renderStrip();
   const key=dkey(curOff);
@@ -1031,6 +1048,27 @@ function renderSessionCard(key, si, s){
   const vol = exIds.reduce((a,id)=>a+(s[id]||[]).filter(x=>x.done).reduce((b,x)=>b+(x.w||0)*(x.r||0),0),0);
   const R=27,C=2*Math.PI*R,off=C-(pct/100)*C;
 
+  // Collapsed view for finished sessions — tap to expand
+  if(s._done && !expandedSessions.has(si)){
+    return `<div class="session-block" id="sblock-${si}">
+      <div class="pcard done-collapsed" onclick="toggleSessionExpanded(${si})">
+        <div class="ring">
+          <svg width="64" height="64" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--border)" stroke-width="5.5"/>
+            <circle cx="32" cy="32" r="${R}" fill="none" stroke="${m.color}" stroke-width="5.5"
+              stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="0" stroke-linecap="round"/>
+          </svg>
+          <div class="ringtxt">${svgIcon('check')}<span class="ringsub">DONE</span></div>
+        </div>
+        <div style="flex:1">
+          <div class="ptitle"><span class="dot" style="background:${m.color}"></span>${m.name}</div>
+          <div class="psub2">${vol>0?Math.round(vol).toLocaleString()+' '+unit+' · ':''}${exIds.length} exercises${s._durationMin?' · '+s._durationMin+'m':''}</div>
+        </div>
+        <div class="excv" style="transform:rotate(-90deg)">${svgIcon('back_arrow')}</div>
+      </div>
+    </div>`;
+  }
+
   const exCards = exIds.map((id,i)=>renderExCard(getEx(id),s[id]||[],key,i,si)).join('');
 
   return `<div class="session-block" id="sblock-${si}">
@@ -1054,7 +1092,7 @@ function renderSessionCard(key, si, s){
     ${exCards}
     <div style="margin-top:10px">${renderSearch(key,s.type,exIds,si)}</div>
     <textarea class="ni" rows="3" placeholder="Notes…" oninput="saveNote(this.value,'${key}',${si})">${s._notes||''}</textarea>
-    <button class="finbtn" style="margin-bottom:20px" onclick="finWO('${key}',${si})">${s._done?'Complete':'Finish Session'}</button>
+    <button class="finbtn" style="margin-bottom:20px" onclick="finWO('${key}',${si})">${s._done?'Collapse':'Finish Session'}</button>
     <div class="session-divider"></div>
   </div>`;
 }
@@ -1098,6 +1136,13 @@ function selectSessionType(key, si, type){
 }
 
 let addingSession = false;
+let expandedSessions = new Set(); // session indices manually expanded after being marked done
+
+function toggleSessionExpanded(si){
+  if(expandedSessions.has(si)) expandedSessions.delete(si);
+  else expandedSessions.add(si);
+  renderWPreserveScroll();
+}
 
 function startAddSession(){
   addingSession = true;
@@ -1237,7 +1282,8 @@ function addEx(id,key,type,si){
   const ex=getEx(id);
   s[id]=Array.from({length:ex.sets},()=>({w:'',r:'',done:false}));
   sv2('lift_logs',logs);toast('Added: '+ex.name);
-  autoSaveTemplate(key,si);qsync(key);renderW();
+  autoSaveTemplate(key,si);qsync(key);
+  renderWPreserveScroll();
   setTimeout(()=>openEx(id+'_'+si),60);
 }
 
@@ -1400,14 +1446,14 @@ function togDone(key,exId,seti,si){
     btn.className='ck'+(d?' on':'');btn.innerHTML=d?svgIcon('check'):'';
     if(d){toast('Set done');startRestTimer(90);if(navigator.vibrate)navigator.vibrate(60);}
   }
-  setTimeout(renderW,250);qsync(key);
+  setTimeout(renderWPreserveScroll,250);qsync(key);
 }
 
 function removeEx(key,id,si){
   const s=getSession(key,si);if(!s)return;
   s._exercises=(s._exercises||[]).filter(e=>e!==id);
   delete s[id];
-  sv2('lift_logs',logs);autoSaveTemplate(key,si);qsync(key);renderW();
+  sv2('lift_logs',logs);autoSaveTemplate(key,si);qsync(key);renderWPreserveScroll();
 }
 
 function addSet(key,id,si){
@@ -1415,14 +1461,14 @@ function addSet(key,id,si){
   if(!s[id])s[id]=[];
   s[id].push({w:'',r:'',done:false});sv2('lift_logs',logs);
   autoSaveTemplate(key,si);qsync(key);
-  renderW();setTimeout(()=>openEx(id+'_'+si),40);
+  renderWPreserveScroll();setTimeout(()=>openEx(id+'_'+si),40);
 }
 
 function removeSet(key,id,si){
   const s=getSession(key,si);if(!s?.[id]||s[id].length<=1)return;
   s[id].pop();sv2('lift_logs',logs);
   autoSaveTemplate(key,si);qsync(key);
-  renderW();setTimeout(()=>openEx(id+'_'+si),40);
+  renderWPreserveScroll();setTimeout(()=>openEx(id+'_'+si),40);
 }
 
 function saveNote(val,key,si){
@@ -1433,6 +1479,12 @@ function saveNote(val,key,si){
 function finWO(key,si){
   const s=getSession(key,si);
   if(!s||(s._exercises||[]).length===0){toast('Add exercises first!');return}
+  if(s._done){
+    // Already finished — button now just collapses the card
+    expandedSessions.delete(si);
+    renderW();
+    return;
+  }
   s._done=true;s._at=new Date().toISOString();
   if(s._startedAt){
     const mins=Math.round((new Date(s._at)-new Date(s._startedAt))/60000);
@@ -1440,6 +1492,7 @@ function finWO(key,si){
   }
   sv2('lift_logs',logs);
   dsync(key).then(()=>toast('Saved & backed up'));
+  expandedSessions.delete(si); // collapse immediately after finishing
   setTimeout(renderW,300);
 }
 
@@ -1539,6 +1592,59 @@ function openSettings(){
 }
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open')}
 function saveToken(){const v=document.getElementById('ti').value.trim();if(v){localStorage.setItem('lift_token',v);toast('Sync enabled')}closeSettings()}
+
+// ── BACKUP / RESTORE ──────────────────────────────────────
+function exportAllData(){
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    logs: ld('lift_logs',{}),
+    prs: ld('lift_prs',{}),
+    customExercises: ld('lift_cx',[]),
+    templates: ld('lift_templates',{}),
+    unit: localStorage.getItem('lift_unit')||'lbs',
+    theme: localStorage.getItem('lift_theme')||'dark'
+  };
+  const blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `lift-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+}
+
+function importAllData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const backup = JSON.parse(e.target.result);
+      if(!backup.logs){ toast('Invalid backup file'); return; }
+      logs = backup.logs || {};
+      prs = backup.prs || {};
+      cexs = backup.customExercises || [];
+      sv2('lift_logs', logs);
+      sv2('lift_prs', prs);
+      sv2('lift_cx', cexs);
+      if(backup.templates) sv2('lift_templates', backup.templates);
+      if(backup.unit) localStorage.setItem('lift_unit', backup.unit);
+      if(backup.theme){ localStorage.setItem('lift_theme', backup.theme); document.body.classList.toggle('light', backup.theme==='light'); }
+      toast('Backup restored');
+      closeSettings();
+      renderW();
+    }catch(err){
+      toast('Could not read backup file');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset so re-selecting same file works
+}
 function getTheme(){ return localStorage.getItem('lift_theme')||'dark'; }
 function setTheme(t){
   localStorage.setItem('lift_theme',t);
@@ -1569,6 +1675,20 @@ function setTheme(t){
 })();
 
 // ── INIT ──────────────────────────────────────────────────
+// Clean up any corrupted empty session slots from before the fix
+(function cleanupSessions(){
+  let changed = false;
+  Object.keys(logs).forEach(key=>{
+    const log = logs[key];
+    if(log && log._sessions){
+      const before = log._sessions.length;
+      log._sessions = log._sessions.filter(s => s && s.type);
+      if(log._sessions.length !== before) changed = true;
+    }
+  });
+  if(changed) sv2('lift_logs', logs);
+})();
+
 if(getTheme()==='light') document.body.classList.add('light');
 renderW();
 </script>
