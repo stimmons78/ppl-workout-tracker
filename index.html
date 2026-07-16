@@ -2277,7 +2277,19 @@ function togDone(key,exId,seti,si){
   if(pstats) pstats.innerHTML = `${doneCount}/${ts} sets <span class="sep">·</span> ${vol>0?Math.round(vol).toLocaleString()+' '+unit:'Start logging'}`;
 
   // 4. Feedback — no scroll, no re-render, no collapse
-  if(d){toast('Set done');if(getRestTimerEnabled())startRestTimer(90);if(navigator.vibrate)navigator.vibrate(60);}
+  if(d){
+    toast('Set done');
+    if(getRestTimerEnabled())startRestTimer(90);
+    if(navigator.vibrate)navigator.vibrate(60);
+    // Move focus to the next set's weight input, if one exists
+    const nextRow = document.getElementById(`sr-${uid}-${seti+1}`);
+    if(nextRow){
+      const nextInput = nextRow.querySelector('.si');
+      if(nextInput){
+        setTimeout(()=>{ nextInput.focus({preventScroll:true}); nextInput.select(); }, 80);
+      }
+    }
+  }
   qsync(key);
 }
 
