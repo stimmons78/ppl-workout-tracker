@@ -1860,15 +1860,15 @@ function renderSessionCard(key, si, s){
       <div class="ring">
         <svg width="64" height="64" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--border)" stroke-width="5.5"/>
-          <circle cx="32" cy="32" r="${R}" fill="none" stroke="${m.color}" stroke-width="5.5"
+          <circle id="ringcircle-${si}" cx="32" cy="32" r="${R}" fill="none" stroke="${m.color}" stroke-width="5.5"
             stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" stroke-linecap="round" style="transition:stroke-dashoffset .4s ease"/>
         </svg>
-        <div class="ringtxt"><b>${pct}%</b><span class="ringsub">DONE</span></div>
+        <div class="ringtxt" id="ringtxt-${si}"><b>${pct}%</b><span class="ringsub">DONE</span></div>
       </div>
       <div style="flex:1">
         <div class="ptitle"><span class="dot" style="background:${m.color}"></span>${m.name}</div>
         <div class="psub2">${m.subtitle}</div>
-        <div class="pstats">${ds2}/${ts} sets <span class="sep">·</span> ${vol>0?Math.round(vol).toLocaleString()+' '+unit:'Start logging'}</div>
+        <div class="pstats" id="pstats-${si}">${ds2}/${ts} sets <span class="sep">·</span> ${vol>0?Math.round(vol).toLocaleString()+' '+unit:'Start logging'}</div>
       </div>
       <button class="session-remove-btn" onclick="confirmRemoveSession('${key}',${si})" title="Remove session">${svgIcon('close')}</button>
     </div>
@@ -2134,7 +2134,7 @@ function renderExCard(ex,sets,key,idx,si){
     <div class="swipe-delete" onclick="removeEx('${key}','${ex.id}',${si})">${svgIcon('trash')}Remove</div>
     <div class="exc${allDone?' ec':''}" id="exc-${uid}">
       <div class="exh" onclick="toggleEx('${uid}')">
-        <div class="exi${allDone?' done-icon':''}">${svgIcon(ik)}</div>
+        <div class="exi${allDone?' done-icon':''}" id="exi-${uid}">${svgIcon(ik)}</div>
         <div style="flex:1;min-width:0">
           <div class="exn">${ex.name}${pr?`<span class="prb">${svgIcon('star')}${pr.weight}×${pr.reps}</span>`:''}</div>
           <div class="exm">${sets.length} sets · ${ex.reps} · ${ex.cat}</div>
@@ -2243,13 +2243,42 @@ function togDone(key,exId,seti,si){
   if(!s[exId])return;
   s[exId][seti].done=!s[exId][seti].done;sv2('lift_logs',logs);
   const uid=exId+'_'+si;
+  const d=s[exId][seti].done;
+
+  // 1. Update the checkbox button itself
   const btn=document.querySelector(`#sr-${uid}-${seti} .ck`);
   if(btn){
-    const d=s[exId][seti].done;
-    btn.className='ck'+(d?' on':'');btn.innerHTML=d?svgIcon('check'):'';
-    if(d){toast('Set done');if(getRestTimerEnabled())startRestTimer(90);if(navigator.vibrate)navigator.vibrate(60);}
+    btn.className='ck'+(d?' on':'');
+    btn.innerHTML=d?svgIcon('check'):'';
   }
-  setTimeout(renderWPreserveScroll,250);qsync(key);
+
+  // 2. Update exercise card "done" state (icon + border) without re-rendering it
+  const sets = s[exId]||[];
+  const allDone = sets.length>0 && sets.every(x=>x.done);
+  const excEl = document.getElementById(`exc-${uid}`);
+  const exiEl = document.getElementById(`exi-${uid}`);
+  if(excEl) excEl.classList.toggle('ec', allDone);
+  if(exiEl) exiEl.classList.toggle('done-icon', allDone);
+
+  // 3. Update the session progress ring + stats line, without touching exercise cards or scroll
+  const exIds = s._exercises||[];
+  const unit = getUnit();
+  const ts = exIds.reduce((a,id)=>a+(s[id]?.length||0),0);
+  const doneCount = exIds.reduce((a,id)=>a+(s[id]||[]).filter(x=>x.done).length,0);
+  const pct = ts?Math.round(doneCount/ts*100):0;
+  const vol = exIds.reduce((a,id)=>a+(s[id]||[]).filter(x=>x.done).reduce((b,x)=>b+(x.w||0)*(x.r||0),0),0);
+  const R=27,C=2*Math.PI*R,off=C-(pct/100)*C;
+
+  const ringCircle = document.getElementById(`ringcircle-${si}`);
+  if(ringCircle) ringCircle.setAttribute('stroke-dashoffset', off.toFixed(1));
+  const ringTxt = document.getElementById(`ringtxt-${si}`);
+  if(ringTxt) ringTxt.innerHTML = `<b>${pct}%</b><span class="ringsub">DONE</span>`;
+  const pstats = document.getElementById(`pstats-${si}`);
+  if(pstats) pstats.innerHTML = `${doneCount}/${ts} sets <span class="sep">·</span> ${vol>0?Math.round(vol).toLocaleString()+' '+unit:'Start logging'}`;
+
+  // 4. Feedback — no scroll, no re-render, no collapse
+  if(d){toast('Set done');if(getRestTimerEnabled())startRestTimer(90);if(navigator.vibrate)navigator.vibrate(60);}
+  qsync(key);
 }
 
 function removeEx(key,id,si){
